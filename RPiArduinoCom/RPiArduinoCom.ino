@@ -1,5 +1,7 @@
 // Declare frequency variable that will be taken from Raspberry Pi
 long frequency;
+long freqMIN = 320000000;   // 320 MHz 
+long freqMAX = 1600000000;  // 1.6 GHz
 
 void setup() {
   Serial.begin(115200);
@@ -15,17 +17,17 @@ void loop() {
     //Take frequency input from Serial Line
     frequency = Serial.parseInt(); // Converts string into long
 
-    if((frequency == 0) || (frequency == 50000000))
+    if((frequency == 0) || (frequency == freqMIN))
     {
       Serial.write(2); // Sent a message that arduino is complete with its task 
     }
-    else if((frequency > 50000000) && (frequency <= 1000000000))
+    else if((frequency > freqMIN) && (frequency <= freqMAX))
     {
       Serial.write(1);
     }
     else
     {
-      Serial.write(3);
+      Serial.write(5);
     }
   }
 }

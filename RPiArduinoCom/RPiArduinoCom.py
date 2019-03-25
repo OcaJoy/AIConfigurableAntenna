@@ -46,8 +46,12 @@ while 1:
         print("Antenna Ready")
     elif reply == b'\x02':
         print("Antenna Homed")
-    elif reply == b'\x03':
-        print("Frequency not in range")
+	elif reply == b'\03':
+		print("ERROR: Mistep in belt system of main antennas")
+	elif reply == b'\04':
+		print("ERROR: Problem in gear system of reflector antennas)
+    elif reply == b'\x05':
+        print("ERROR: Frequency not within range")
     else:
         #if arduino returns a value of 0 or anything else
         print("There is a problem with arduino")

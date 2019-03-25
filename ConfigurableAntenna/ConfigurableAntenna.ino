@@ -1,37 +1,44 @@
+#include <AccelStepper.h>
+
 // Define Constants for Pins
-const int A_PHASE = 19;
-const int B_PHASE = 18;
-const int C_PHASE = 3;
-const int D_PHASE = 2;
+const int AA_PHASE = 19;
+const int AB_PHASE = 18;
+const int BA_PHASE = 3;
+const int BB_PHASE = 2;
 const int ant_StepPin = 23;
 const int ant_DirPin = 25;
 const int ref_StepPin = 27;
 const int ref_DirPin = 29;
-const int ant_LimitSwitch = 31; // Switch that activates when Main Antennas are homed
-const int ref_LimitSwitch = 33; // Switch that activates when Reflector Antennas are homed
-const int en_AntPin = 35; // Enable pin for Main Antenna Motor
-const int en_RefPin = 37; // Enable pin for Reflector Antenna Motor
-const long freqMIN = 10000000;
-const long freqMAX = 1000000000;
+const int ant1_LimitSwitch = 31; // Switch that activates when 1st Main Antenna is homed
+const int ant2_LimitSwitch = 33; // Switch that activates when 2nd Main Antenna is homed
+const int ref_LimitSwitch = 35; // Switch that activates when Reflector Antennas are homed
+const int en_AntPin = 37; // Enable pin for Main Antenna Motor
+const int en_RefPin = 39; // Enable pin for Reflector Antenna Motor
+
+// Define Min & Max Frequency
+const long freqMIN = 320000000; // 320 MHz
+const long freqMAX = 1600000000; // 1.6 GHz
+
+// Define Motor Speed
+const int Speed = 1200; // in Steps per Second
 
 // Define Global Variables
 unsigned long frequency;  // Frequency Variable
-long ant_CurStep = 0; // Current Steps of the Antenna Motor
-long ref_CurStep = 0; // Current Steps of the Reflector Antenna Motor
 long ant_ReqStep; // Required Steps of Antenna Motor
 long ref_ReqStep; // Required Steps of Reflector Antenna Motor
 
 // Variables that hold encoder values
-long ant_ENC = 0;  // Positive Values are CW & Negative Valeus are CCW
+long ant_ENC = 0;  // Positive Values are CCW & Negative Valeus are CW
 long ref_ENC = 0;  
                  
 void setup() {
   // Setup Pins 
-  pinMode(A_PHASE, INPUT);
-  pinMode(B_PHASE, INPUT);
-  pinMode(C_PHASE, INPUT);
-  pinMode(D_PHASE, INPUT);
-  pinMode(ant_LimitSwitch, INPUT);
+  pinMode(AA_PHASE, INPUT);
+  pinMode(AB_PHASE, INPUT);
+  pinMode(BA_PHASE, INPUT);
+  pinMode(BB_PHASE, INPUT);
+  pinMode(ant1_LimitSwitch, INPUT);
+  pinMode(ant2_LimitSwitch, INPUT);
   pinMode(ref_LimitSwitch, INPUT);
   pinMode(ant_StepPin, OUTPUT);
   pinMode(ant_DirPin, OUTPUT);
@@ -41,8 +48,8 @@ void setup() {
   pinMode(en_RefPin, OUTPUT);
   
   // Attach Interrupt to both Rotary Encoders
-  attachInterrupt(digitalPinToInterrupt(A_PHASE), antEncoder, RISING); //Interrupt trigger mode: RISING
-  attachInterrupt(digitalPinToInterrupt(C_PHASE), refEncoder, RISING); //Interrupt trigger mode: RISING
+  attachInterrupt(digitalPinToInterrupt(AA_PHASE), antEncoder, RISING); //Interrupt trigger mode: RISING
+  attachInterrupt(digitalPinToInterrupt(BA_PHASE), refEncoder, RISING); //Interrupt trigger mode: RISING
 
   // Set up Serial Connection
   Serial.begin(115200);
@@ -66,26 +73,26 @@ void loop() {
     else if((frequency >= freqMIN) && (frequency <= freqMAX))
     {
       // Calculate steps needed for Antenna and Reflector Antenna Motors
-      ant_ReqStep = ant_StepsCalc();
-      ref_ReqStep = ref_StepsCalc(); 
+      ant_ReqStep = ant_StepsCalc(frequency);
+      ref_ReqStep = ref_StepsCalc(frequency); 
 
       // Enable Motors
       enableMotors();
       
       // Move Main Antenna Motor
-      moveMotor(ant_ReqStep, ant_CurStep, ant_DirPin, ant_ENC);
+      moveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
 
       // Move Reflector Antenna Motor
-      moveMotor(ref_ReqStep, ref_CurStep, ref_DirPin, ref_ENC);
+      moveMotor(ref_ReqStep, ref_StepPin, ref_DirPin, ref_ENC);
 
       // Disable Motors
       disableMotors();
 
-      Serial.write(1);
+      Serial.write(1); // Send 1: Antenna is at proper length 
     }
     else
     {
-      Serial.write(3); // Send 3: indicate that the frequency is not within range
+      Serial.write(5); // Send 5: indicate that the frequency is not within range
     }
   }
 }
@@ -113,38 +120,54 @@ void disableMotors()
 ************************************************************/
 void antHome()
 { 
+  // Create AccelStepper Objects
+  AccelStepper AntStepper(1, ant_StepPin, ant_DirPin);
+  AccelStepper RefStepper(1, ref_StepPin, ref_DirPin);
+
+  // Set Max Speeds
+  AntStepper.setMaxSpeed(800);
+  RefStepper.setMaxSpeed(800);
+  
   // Enable Motors
   enableMotors();
   
   // Home the Main Antenna
-  while(!digitalRead(ant_LimitSwitch))
+  while(!(digitalRead(ant1_LimitSwitch) || digitalRead(ant2_LimitSwitch)))
   {
-    // TODO Slowly Move motor back until the Limit Switch of Main Antenna is actuated  
+    AntStepper.move(-1);
+    AntStepper.runSpeed();
   }
 
-  // Reset Current Steps of the Main Antenna Variable
-  long ant_CurStep = 0;
+  // Check that both limit switches of Main Antenna has to be activated
+  if(!(digitalRead(ant1_LimitSwitch) && digitalRead(ant2_LimitSwitch)))
+  {
+    Serial.write(3); // Send 3: There is a mistep in the belt system
+    return; 
+  }
 
   // Home the Reflector Antenna
   while(!digitalRead(ref_LimitSwitch))
   {
-    // TODO Slowly Move motor back until the Limit Switch of Reflector Antenna is actuated
+    RefStepper.move(-1);
+    RefStepper.runSpeed();
   }
 
-  // Reset Current Steps of the Reflector Antenna Variable
-  long ref_CurStep = 0;
+
+  // Reset the Encoder Values
+  ant_ENC = 0;
+  ref_ENC = 0;
 
   // Disable Motors
   disableMotors();
 
   // Check if properly homed
-  if(digitalRead(ant_LimitSwitch) && digitalRead(ref_LimitSwitch))
+  if(digitalRead(ref_LimitSwitch))
   {
     Serial.write(2); // Send 2: antennas homed properly
   }
   else
   {
-    Serial.write(0); // Send 0 indicating there is a problem with homing
+    Serial.write(5); // Send 5 indicating there is a problem with homing the reflector antennas
   }
 }
 
@@ -154,11 +177,11 @@ void antHome()
 void antEncoder()
 {
   char i;
-  i = digitalRead(B_PHASE);
+  i = digitalRead(AB_PHASE);
   if (i==1) // Turning CCW
-    ant_ENC -= 1;
-  else // Turning CW
     ant_ENC += 1;
+  else // Turning CW
+    ant_ENC -= 1;
 }
 
 /***********************************************************
@@ -167,28 +190,40 @@ void antEncoder()
 void refEncoder()
 {
   char i;
-  i = digitalRead(B_PHASE);
+  i = digitalRead(BB_PHASE);
   if (i==1) // Turning CCW
-    ref_ENC -= 1;
-  else // Turning CW
     ref_ENC += 1;
+  else // Turning CW
+    ref_ENC -= 1;
 }
 
 /***********************************************************
  * Converts Frequency into Steps for Antenna
 ************************************************************/
-long ant_StepsCalc()
+long ant_StepsCalc(unsigned long freq)
 {
   // TODO Calculates steps required from frequency
+  // Find Antenna Length Required for input frequency
+
+  // Subtract Antenna Length by Minimum Frequency Length
+  
+  // Convert resulting length into # of steps 
+  
   // Return Steps
 }
 
 /***********************************************************
  * Converts Frequency into Steps for Reflector Antenna
 ************************************************************/
-long ref_StepsCalc()
+long ref_StepsCalc(unsigned long freq)
 {
   // TODO Calculates steps required from frequency
+  // Find Reflector Distance Required for input frequency
+
+  // Subtract Antenna Length by Minimum Frequency Distance
+
+  // Convert resulting length into # of steps
+  
   // Return Steps
 }
 
@@ -197,50 +232,30 @@ long ref_StepsCalc()
  * determines whether motor moves CW or CCW 
  * as well as the encoder closed loop logic
 ************************************************************/
-void moveMotor(long ReqStep, long CurStep, int Dir, long Encoder)
+void moveMotor(long ReqStep, long StepPin, int DirPin, long Encoder)
 {
-
+  //Accel Stepper Object
+  AccelStepper stepper(1, StepPin, DirPin);
+  stepper.setMaxSpeed(Speed);
+  
   // Move Motor to required step
-  if(ReqStep > CurStep)
+  stepper.move(ReqStep - Encoder);
+  stepper.setSpeed(Speed);
+
+  // Keep running motor until distance is reached
+  while(stepper.distanceToGo() != 0)
   {
-    digitalWrite(Dir, HIGH); //Turn Motor CW
-    // stepMotor(ReqStep - CurStep);    
-  }
-  else if (ReqStep < CurStep)
-  {
-    digitalWrite(Dir, LOW);  //Turn Motor CCW
-    // stepMotor(CurStep - ReqStep);
-  }
-  else
-  {
-    // Do nothing if equal
+    stepper.runSpeedToPosition(); // Command to run at constant speed specified
   }
 
   // Match Encoder reading to required step
-  while(Encoder != ReqStep) // As long as encoder detects motor understep/overstep, motor will keep adjusting until it reaches required steps
+  while(Encoder != ReqStep)
   {
-    if(Encoder > ant_ReqStep)
+    stepper.setSpeed(800);  // Set at lower speed for precise movements
+
+    while(stepper.distanceToGo() != 0)
     {
-      digitalWrite(ant_DirPin, LOW);  //Turn Motor CCW
-      //stepMotor(Encoder - ReqStep)
-    }
-    else
-    {
-      digitalWrite(ant_DirPin, HIGH); //Turn Motor CW
-      //stepMove(ReqStep - Encoder);
+      stepper.runSpeedToPosition();
     }
   }
-
-  // Set new step position as current step
-  CurStep = Encoder;
-}
-
-
-/***********************************************************
- * Step Motor
- * moves the motor in steps
-************************************************************/
-void stepMotor(long steps)
-{
-  // TODO Move motor with proper rpm and acceleration
 }
