@@ -9,6 +9,11 @@ baudrate = 115200
 arduino = Serial(port, baudrate) # Create serial object with specified baudrate and port address
 arduino.flush() #Clear input buffer
 
+
+MinMainAntennaLength #TODO Determine Main Antenna Minimum Length
+MinReflectorAntennaDistance #TODO Determine Reflector Atenna Minimum Distance
+LengthToStepsConversion = 0.01 # Antenna extends at 0.01 centimeter per motor step 
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """
 Function: ControlAntenna
@@ -23,15 +28,19 @@ Description: combines the mode instruction and targetted absolute length (that w
              2: controls main and reflector antennas to the required length specified by the inputted frequency
              3: controls main and reflector antennas to the required length specified by the inputted absolute length
              4: controls only the main antenna to the required length specified by the inputted absolute length
-             5: controls only the reflector antenna to the required length specified by the inputted absolute length
+             5: controls only the reflector antenna to the required distance specified by the inputted absolute length
     
 """
-def ControlAntenna (modeInput, lengthInput):    
+def ControlAntenna (modeInput, lengthInput=0):    
 	#Check if the mode is to home the antennas
 	if modeInput == 1:
 		lengthInput = 0 # Default the targetted absolute length to 0
-    instructionString = str(modeInput) + str(LengthToSteps(lengthInput))
-    arduino.write(str.encode(instructionString))
+	elif modeInput == 2:
+		instructionString = str(modeInput) + str(lengthInput)
+	else:
+		instructionString = str(modeInput) + str(LengthToSteps(lengthInput, LengthToStepsConversion))
+    
+	arduino.write(str.encode(instructionString))
     arduino.flush()
     
 """
@@ -40,8 +49,9 @@ Parameter: lengthInput - targetted absolute length
 
 Description: Converts distance in cm to the number of motor steps required
 """
-def LengthToSteps(lengthInput):
-    motorSteps = int(lengthInput/0.01) # Calculate the number targetted motor steps by dividing it with the distance per step value (0.01cm per step)
+# TODO Subtract the desired length/distance by the MinMainAntennaLength or MinReflectorAntennaDistance depending on the mode
+def LengthToSteps(lengthInput, conversionValue):
+    motorSteps = int(lengthInput/conversionValue) # Calculate the number targetted motor steps by dividing it with the distance per step value (0.01cm per step)
     return motorSteps
 
 """
@@ -76,10 +86,15 @@ def HumanInput():
         while 1:
             human_lengthInputStringVer = input("Enter Desired Absolute Length: ")
             try:
-                huamn_lengthInput = int(human_lengthInputStringVer)
+                huaman_lengthInput = int(human_lengthInputStringVer)
                 break
             except ValueError:
-                print("Input number values only")
+                pass
+			try:
+				human_lengthInput = float(human_lengthInputStringVer)
+				break
+			except ValueError:
+				print("Input number values only")
             
         ControlAntenna(human_inputMode, human_lengthInput)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -99,7 +114,7 @@ while 1:
     #ControlAntenna(5, 1000) 
     
     #Wait for reply from arduino
-    WaitForArduino
+    WaitForArduino()
     
     #Check Error Log 
     reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino  
@@ -120,5 +135,6 @@ while 1:
     else:
         #if arduino returns a value of 0 or anything else
         exit()
-
+	
+	arduino.flush()
     

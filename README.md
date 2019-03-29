@@ -9,12 +9,6 @@ To run this program, the following software may be needed:
 
 - [Arduino](https://www.arduino.cc/en/main/software): is only required to edit and upload the program to the Arduino Mega
 
-## Getting Started
-To run this program, the following software may be needed:
-- [Python](https://www.python.org/downloads/)
-
-- [Arduino](https://www.arduino.cc/en/main/software): is only required to edit and upload the program to the Arduino Mega
-
 ## Programs
 ### ConfigurableAntenna.ino
 This is the main Arduino program that will control the length of the antenna depending on the input from RPiArduinoCom.py
