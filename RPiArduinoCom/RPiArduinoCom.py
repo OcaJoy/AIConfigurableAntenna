@@ -41,8 +41,7 @@ Parameter: lengthInput - targetted absolute length
 Description: Converts distance in cm to the number of motor steps required
 """
 def LengthToSteps(lengthInput):
-    motorSteps = lengthInput * 1
-    int(motorSteps)
+    motorSteps = int(lengthInput/0.01) # Calculate the number targetted motor steps by dividing it with the distance per step value (0.01cm per step)
     return motorSteps
 
 """
