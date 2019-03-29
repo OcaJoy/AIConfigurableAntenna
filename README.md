@@ -1,13 +1,11 @@
 # AIConfigurableAntenna
 
 ## ConfigurableAntenna
-This is the main program that will be coded into the Arduino. 
+This is the main Arduino program that will control the length of the antenna depending on the input from RPiArduinoCom.py
 
 ## RPiArduinoCom
-This contains a Python and an Arduino file 
+This is the python program that is uploaded to the Raspberry Pi and will be used by the AI to send digital instructions to the Arduino.
 
-### RPiArduinoCom.py
-This is the python program that uses the Pyserial Library to serially communicate with the Arduino
-
-### RPiArduinoCom.ino
-This program is a bare version of the ConfigurableAntenna that only contains the code that communicates with the Python program
+## Libraries
+PySerial [Version 3.4]
+AccelStepper [Version 1.59] 
