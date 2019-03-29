@@ -7,7 +7,7 @@ This is the main Arduino program that will control the length of the antenna dep
 This is the python program that is uploaded to the Raspberry Pi and will be used by the AI to send digital instructions to the Arduino.
 
 ## Libraries
-..*[PySerial](https://pypi.org/project/pyserial/) [Version 3.4]
-...This library is used to establish a serial connection between python and arduino to be able to read and write data between the two systems.
-..*[AccelStepper](https://www.airspayce.com/mikem/arduino/AccelStepper/) [Version 1.59] 
-...This library is used to send signals to the Pololu A4988 Stepper Motor Driver to be able to drive the Stepper Motors.
+- [PySerial](https://pypi.org/project/pyserial/) Version 3.4
+  - This library is used to establish a serial connection between python and arduino to be able to read and write data between the two systems.
+- [AccelStepper](https://www.airspayce.com/mikem/arduino/AccelStepper/) Version 1.59 
+  - This library is used to send signals to the Pololu A4988 Stepper Motor Driver to be able to drive the Stepper Motors.
