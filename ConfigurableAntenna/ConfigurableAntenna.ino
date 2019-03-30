@@ -270,7 +270,7 @@ long StepsCalc(unsigned long freq)
 }
 
 /***********************************************************
- * Method: motorOneMove
+ * Method: MotorMove
  * param long ReqStep - the number of steps the motor is required to move
  *       long StepPin - the pin that sends data on how much needs to be stepped on the motor driver
  *       long DirPin  - the pin that controls whether the motor runs clockwise or counter-clockwise on the motor driver
