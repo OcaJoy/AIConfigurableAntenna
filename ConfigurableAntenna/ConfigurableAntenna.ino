@@ -20,10 +20,6 @@ const int ref2_LimitSwitch = 43; // Switch that activates when 2nd Reflector Ant
 const long freqMIN = 320000000; // 320 MHz
 const long freqMAX = 1600000000; // 1.6 GHz
 
-// TODO Define Min & Max Motor Steps
-const int stepsMIN = 0; 
-const int stepsMAX = 0;
-
 // Define Motor Speed
 const int motorSpeed = 1200; // in Steps per Second
 
@@ -68,9 +64,6 @@ void setup() {
   // Set up Serial Connection
   Serial.begin(115200); //Set up the baudrate (has to be the same as what is set on the Raspberry Pi)
   Serial.setTimeout(50);
-  
-  // Home in Antenna at starting position
-  AntennaHome(); 
 }
 
 /*********************************************************************************************************************************************************************************
@@ -83,9 +76,9 @@ void loop() {
   if(Serial.available())
   {
     //Instructions for Raspberry Pi
-    dataInput = Serial.readString();
-    modeInput = dataInput.charAt(0); // Extract the mode instruction from the string
-    dataInput.remove(0,1); // Remove the mode instruction from the string
+    dataInput = Serial.readString(); //Get the full instruction from Raspberry Pi and place it in a string
+    modeInput = dataInput.charAt(0); // Extract the mode instruction from the first character of the string
+    dataInput.remove(0,1); // Remove the first character or the mode instruction from the string
 
     switch(modeInput)
     {
@@ -116,7 +109,9 @@ void loop() {
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
         ref_ReqStep = ant_ReqStep + 109;
-
+          /* 109 is added because the minimum length of the main antenna and the minimum distance
+           *  of the reflector antennas have a difference of 1.085 cm which is equal to 109 motor steps rounded up 
+           */
         // Check if the length input is within the capability of the antenna
         if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
         {
@@ -301,12 +296,12 @@ long StepsCalc(unsigned long freq)
  * Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. 
  * 
  * Parameter: long ReqStep - the number of steps the motor is required to move
- *            long StepPin - the pin that sends data on how much needs to be stepped on the motor driver
- *            long DirPin  - the pin that controls whether the motor runs clockwise or counter-clockwise on the motor driver
- *            long Encoder - encoder variable of the current motor that will be moved      
+ *            int StepPin - the pin of the motor driver that controls the motor
+ *            int DirPin  - the pin of the motor driver that controls the direction of the motor
+ *            long Encoder - encoder variable of the desired motor to be moved      
  * Returns: void
 **********************************************************************************************************************************************************************************/
-void MoveMotor(long ReqStep, long StepPin, int DirPin, long Encoder)
+void MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)
 {
   // Create an AccelStepper object that use the inputted Step and Direction Pin of the motor driver specified
   AccelStepper stepper(1, StepPin, DirPin);

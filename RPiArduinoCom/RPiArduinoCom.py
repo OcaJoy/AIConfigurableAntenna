@@ -7,7 +7,6 @@ baudrate = 115200 #Set the communication baudrate (has to be the same as the Ard
 
 # Create a serial object to communicate with Arduino Serially
 arduino = Serial(port, baudrate) # Create serial object with specified baudrate and port address
-arduino.flush() #Clear input buffer
 
 # Global Variables
 MinMainAntennaLength = 5.6 # Minimum length of a main antenna (single dipole) in centimeter
@@ -86,6 +85,36 @@ def WaitForArduino():
         pass # Do nothing
 
 """
+Function: CommunicationCode
+Description: Gets the reply of the Arduino and depending on the code, program continues its loop or the progam exits
+
+Parameter: none
+Returns: none
+"""
+def CommunicationCode():
+	reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino  
+    if reply == b'00':
+        print("ERROR: Communication Error with Arduino")
+    elif reply == b'01':
+        print("Antenna Ready")
+    elif reply == b'02':
+        print("Antenna Homed")
+    elif reply == b'03':
+        print("ERROR: Mistep in belt system of main antenna")
+		exit() # Exit the program to fix the mistep
+    elif reply == b'04':
+        print("ERROR: Mistep in gear system of reflector antennas")
+		exit() # Exit the program to fix the mistep
+    elif reply == b'05':
+        print("ERROR: Frequency not within range")
+    elif reply == b'06':
+        print("ERROR: Absolute length inputted is not within capability of antennas")
+    else:
+        #if arduino returns a code with a value other than the above, exit the program
+        exit()
+
+
+"""
 Function HumanInput
 Description: takes user input through keyboard. This function can be removed once human input is not required
 
@@ -120,10 +149,9 @@ def HumanInput():
         
 		# Send the desired mode and length to Arduino
         ControlAntenna(human_inputMode, human_lengthInput)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-#Wait for arduino to finish setting up
-WaitForArduino()
+#Send an instruction to the Arduino telling it to home the antennas
+ControlAntenna(1,0)
 
 #Exit program if arduino is not able to home properly (code recieved is not "02")
 if arduino.read(2) != b'02':
@@ -140,24 +168,6 @@ while 1:
     WaitForArduino()
     
     #Check Error Log 
-    reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino  
-    if reply == b'00':
-        print("ERROR: Communication Error with Arduino")
-    elif reply == b'01':
-        print("Antenna Ready")
-    elif reply == b'02':
-        print("Antenna Homed")
-    elif reply == b'03':
-        print("ERROR: Mistep in belt system of main antenna")
-    elif reply == b'04':
-        print("ERROR: Mistep in gear system of reflector antennas")
-    elif reply == b'05':
-        print("ERROR: Frequency not within range")
-    elif reply == b'06':
-        print("ERROR: Absolute length inputted is not within capability of antennas")
-    else:
-        #if arduino returns a code with a value other than the above
-        exit()
+    CommunicationCode()
 	
 	arduino.flush()
-    
