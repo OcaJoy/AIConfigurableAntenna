@@ -1,5 +1,4 @@
 #include <AccelStepper.h>
-#include <Math.h>
 
 // Define Constants for Pins
 const int antA_PHASE = 19;
@@ -42,11 +41,11 @@ float c = 299792458;
 float AntennaLengthMIN = 5.6; // Minimum length of the main antenna in centimeters
 float conversionValue = 0.01; // Conversion value used to convert the length needed in centimeters to steps needed
 
-/*                 
- *                  
- */
+/**********************************************************************************************************************************************************************************               
+ * The program sets up by indicating which pins are inputs and outputs, attaching the interrupt function to the encoders, and open up a Serial Connection with the Raspberry Pi.                   
+**********************************************************************************************************************************************************************************/
 void setup() {
-  // Setup Pins 
+  // Indicate which pins are inputs and outputs
   pinMode(antA_PHASE, INPUT);
   pinMode(antB_PHASE, INPUT);
   pinMode(refA_PHASE, INPUT);
@@ -67,13 +66,18 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(refA_PHASE), refEncoder, RISING); //Interrupt triggers on Rising Edge
 
   // Set up Serial Connection
-  Serial.begin(115200);
+  Serial.begin(115200); //Set up the baudrate (has to be the same as what is set on the Raspberry Pi)
   Serial.setTimeout(50);
   
   // Home in Antenna at starting position
   AntennaHome(); 
 }
 
+/*********************************************************************************************************************************************************************************
+ * This main function always checks the serial input buffer if there is a message from the Raspberry Pi. 
+ * If there is a message, the instructions from the Raspberry Pi is extracted and broken down to read the desired mode and length.
+ * The Arduino moves the motor based on the desired inputs.
+**********************************************************************************************************************************************************************************/
 void loop() {
   // When there is data from Raspberry Pi
   if(Serial.available())
@@ -113,37 +117,50 @@ void loop() {
         ant_ReqStep = dataInput.toInt();
         ref_ReqStep = ant_ReqStep + 109;
 
-        // Move Antennas
-        MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
-        MoveMotor(ref_ReqStep, ref_StepPin, ref_DirPin, ref_ENC);
+        // Check if the length input is within the capability of the antenna
+        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
+        {
+          // Move Antennas
+          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
+          MoveMotor(ref_ReqStep, ref_StepPin, ref_DirPin, ref_ENC);
 
-        Serial.write("01"); // Send 01: Antenna is at targetted length
+          Serial.write("01"); // Send 01: Antenna is at targetted length
+        } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
+        
 
       case '4': // Only move Main Antenna to inputted length
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
 
-        //Move Main Antenna
-        MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
+        // Check if the length input is within the capability of the antenna
+        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
+        {
+          //Move Main Antenna
+          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
 
-        Serial.write("01"); // Send 01: Antenna is at targetted length
+          Serial.write("01"); // Send 01: Antenna is at targetted length
+        } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
 
       case '5':
         //Set the steps needed to reach targetted length
         ref_ReqStep = dataInput.toInt();
 
-        //Move Main Antenna
-        MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
+        // Check if the length input is within the capability of the antenna
+        if((ref_ReqStep >= 0) && (ref_ReqStep <= 1949))
+        {
+          //Move Main Antenna
+          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
 
-        Serial.write("01"); // Send 01: Antenna is at targetted length
+          Serial.write("01"); // Send 01: Antenna is at targetted length
+        } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
     }
   }
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * Method enableMotors
  *  Enables or disables both motors through the motor driver depending on what is inputted in the parameter "state"
  *  0 - Enables the motor
@@ -151,14 +168,14 @@ void loop() {
  *  
  * Parameter:  bool state - boolean variable that determines if both motors are enabled or disabled
  * Returns: void
-************************************************************/
+**********************************************************************************************************************************************************************************/
 void EnableMotors(bool state)
 {
   digitalWrite(ant_EnaPin, state);
   digitalWrite(ref_EnaPin, state);
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * method antHome
  * Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. 
  * This function makes use of 4 microswitches (2 for the main antennas and the other 2 for the reflector antennas).
@@ -167,7 +184,7 @@ void EnableMotors(bool state)
  * 
  * Parameter:  none
  * Returns:  void
-************************************************************/
+**********************************************************************************************************************************************************************************/
 void AntennaHome()
 { 
   // Create AccelStepper Objects
@@ -218,14 +235,14 @@ void AntennaHome()
   Serial.write("02"); // Send 02: All antennas homed properly
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * Method: antEncoder
  * This method is called when the main antenna encoder interrupt is triggered
  * Increases the main antenna encoder value by 1 when encoder is stepped once counter-clockwise and decreases the value by 1 when encoder is stepped once clockwise.
  * 
  * Parameter:  none
  * Returns: void
-************************************************************/
+**********************************************************************************************************************************************************************************/
 void antEncoder()
 {
   char i;
@@ -236,14 +253,14 @@ void antEncoder()
     ant_ENC -= 1;
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * Method: refEncoder
- *  * This method is called when the reflector antenna encoder interrupt is triggered
+ * This method is called when the reflector antenna encoder interrupt is triggered
  * Increases the main antenna encoder value by 1 when encoder is stepped once counter-clockwise and decreases the value by 1 when encoder is stepped once clockwise.
  * 
  * Parameter:  none
  * Returns: void
-************************************************************/
+**********************************************************************************************************************************************************************************/
 void refEncoder()
 {
   char i;
@@ -254,59 +271,59 @@ void refEncoder()
     ref_ENC -= 1;
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * Method: StepsCalc
- * Calculates the dipole length based on the frequency inputted.
- * Calculates the dipole length it needs to shorten/elongate into by subtracting the dipole length with the length of the dipole at minimum frequency.
- * Converts the dipole length it needs to shorten/elongate into steps and returns that value
+ * Calculates the length the main antennas need to shorten or elongate based on the frequency inputted by subtracting the dipole length with the length of the main antenna at minimum frequency
  * 
  * Parameter: unsigned long freq - the frequency the antenna has to tune to
- * returns steps - the number of steps the motor has to move to attain the required length
-************************************************************/
+ * Returns: steps - the number of steps the motor has to move to attain the required length
+**********************************************************************************************************************************************************************************/
 long StepsCalc(unsigned long freq)
 {
   float dipoleLength, dipoleLengthToGo;
   long steps;  
 
-  // Find Antenna Length Required for input frequency
+  // Calculates the length of a single dipole based on the frequency inputted
   dipoleLength = (c/freq)/4;
 
   // Subtract Antenna Length by Minimum Length
   dipoleLengthToGo = dipoleLength - AntennaLengthMIN; 
   
-  // Convert resulting length into # of steps 
+  // Convert resulting length into # of steps (results are rounded giving an accurasy of above or below 0.005 centimeters)
   steps = round(dipoleLengthToGo/conversionValue);
   
   // Return Steps
   return steps;
 }
 
-/***********************************************************
+/*********************************************************************************************************************************************************************************
  * Method: MotorMove
- * Initally creates an instance of an AccelStepper Class that uses the Step and Direction Pin of the motor driver specified.
- * Calculates the amount of steps needed to reach the required steps based on the current step in the encoder variable and move the motor. 
- * Checks if the encoder value is equal to the required steps. If not, calculate missing required steps and move the motor until both values are equal.
+ * Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. 
  * 
  * Parameter: long ReqStep - the number of steps the motor is required to move
  *            long StepPin - the pin that sends data on how much needs to be stepped on the motor driver
  *            long DirPin  - the pin that controls whether the motor runs clockwise or counter-clockwise on the motor driver
  *            long Encoder - encoder variable of the current motor that will be moved      
  * Returns: void
-************************************************************/
+**********************************************************************************************************************************************************************************/
 void MoveMotor(long ReqStep, long StepPin, int DirPin, long Encoder)
 {
-  //Create Accel Stepper Object
+  // Create an AccelStepper object that use the inputted Step and Direction Pin of the motor driver specified
   AccelStepper stepper(1, StepPin, DirPin);
+
+  // Set the max speed of the motor
   stepper.setMaxSpeed(motorSpeed);
   
-  // Move Motor to required step
+  // Calculate the amount of steps needed to reach the required steps based on the current steps in the Encoder
   stepper.move(ReqStep - Encoder);
+
+  // Set the speed of the motor
   stepper.setSpeed(motorSpeed);
 
   // Enable Motors
   EnableMotors(0);
 
-  // Keep running motor until distance is reached
+  // Keep running motor until the desired step is reached
   while(stepper.distanceToGo() != 0)
   {
     stepper.runSpeedToPosition(); // Command to step motor at constant speed specified

@@ -156,7 +156,7 @@ while 1:
     elif reply == b'06':
         print("ERROR: Absolute length inputted is not within capability of antennas")
     else:
-        #if arduino returns a value of 0 or anything else
+        #if arduino returns a code with a value other than the above
         exit()
 	
 	arduino.flush()
