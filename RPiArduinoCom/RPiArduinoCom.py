@@ -57,6 +57,7 @@ Function: DistanceToSteps
 Description: This function subtracts the desired absolute length of the antenna with the minimum length of the antenna or the minimum distance of the reflector from the main antenna 
 			 depending on the mode chosen to get the remaining distance. The remaining distance is then converted into the targetted steps the motor needs to take.
 			 This function uses the constant floats MinMainAntennaLength, MinReflectorAntennaDistance, LengthToStepsConversion.
+			 Motor steps are rounded which means the antenna has an accuracy of above or below 0.005 centimeters
 			 
 Parameter:	mode - the desired mode
 			length - the desired absolude length   
@@ -66,10 +67,10 @@ Returns: motorSteps (int) - the targetted steps the motor needs to take
 def LengthToSteps(mode, length, conversionValue):
 	# If the mode is 5 (Controlling the reflector antennas only)
 	if mode == 5:
-		motorSteps = int((length - MinReflectorAntennaDistance)/conversionValue) # Subtract the desired length by the MinReflectorAntennaDistance and then convert into motor steps
+		motorSteps = int(round((length - MinReflectorAntennaDistance)/conversionValue)) # Subtract the desired length by the MinReflectorAntennaDistance and then convert into motor steps
 	# If mode is 3 (Controlling both the main antenna and reflector antenna based on the distance of the desired length of the main antenna) or 4 (Controlling the main antennas only)
 	elif:
-		motorSteps = int((length - MinMainAntennaLength)/conversionValue) # Subtract the desired length by the MinMainAntennaLength and then convert into motor steps
+		motorSteps = int(round((length - MinMainAntennaLength)/conversionValue)) # Subtract the desired length by the MinMainAntennaLength and then convert into motor steps
     return motorSteps
 
 """

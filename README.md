@@ -10,7 +10,7 @@ The AIConfigurableAtenna is a dipole configruable antenna with 2 reflector anten
 
 ## Getting Started
 
-To run this program, the following software may be needed:
+To run this program, the following software may are needed:
 
 - [Python](https://www.python.org/downloads/)
 

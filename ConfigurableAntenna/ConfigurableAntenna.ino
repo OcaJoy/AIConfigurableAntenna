@@ -1,4 +1,5 @@
 #include <AccelStepper.h>
+#include <Math.h>
 
 // Define Constants for Pins
 const int antA_PHASE = 19;
@@ -38,9 +39,12 @@ long ref_ENC = 0;  // Holds the Reflector Antenna Encoder Value
 
 // Define variables for Caclulating Distance to step
 float c = 299792458;
-float dipoleLengthMIN = (c/freqMAX)/4; //Length of Dipole at Minimum Frequency (320 MHz)
-float meterToStep = 0.0001;
-                 
+float AntennaLengthMIN = 5.6; // Minimum length of the main antenna in centimeters
+float conversionValue = 0.01; // Conversion value used to convert the length needed in centimeters to steps needed
+
+/*                 
+ *                  
+ */
 void setup() {
   // Setup Pins 
   pinMode(antA_PHASE, INPUT);
@@ -94,7 +98,7 @@ void loop() {
         {
           // Calculate required steps needed to reach targetted frequency
           ant_ReqStep = StepsCalc(frequency);
-          ref_ReqStep = ant_ReqStep;
+          ref_ReqStep = ant_ReqStep + 109;
 
           // Move Antennas
           MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
@@ -107,7 +111,7 @@ void loop() {
       case '3': // Move Antennas to inputted length
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
-        ref_ReqStep = ant_ReqStep;
+        ref_ReqStep = ant_ReqStep + 109;
 
         // Move Antennas
         MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
@@ -141,12 +145,12 @@ void loop() {
 
 /***********************************************************
  * Method enableMotors
- * param bool state - boolean variable that determines if both motors are enabled or disabled
- * returns void
- * 
- * Enables or disables both motors through the motor driver depending on what is inputted in the parameter "state"
+ *  Enables or disables both motors through the motor driver depending on what is inputted in the parameter "state"
  *  0 - Enables the motor
  *  1 - Disables the motor
+ *  
+ * Parameter:  bool state - boolean variable that determines if both motors are enabled or disabled
+ * Returns: void
 ************************************************************/
 void EnableMotors(bool state)
 {
@@ -156,7 +160,13 @@ void EnableMotors(bool state)
 
 /***********************************************************
  * method antHome
- * returns void
+ * Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. 
+ * This function makes use of 4 microswitches (2 for the main antennas and the other 2 for the reflector antennas).
+ * If either of 1 of the main antennas microswitches is not activated after homing, then there is a mistep in the belt system of the main antenna. 
+ * The same logic applies to the microswitches of the reflector antennas.
+ * 
+ * Parameter:  none
+ * Returns:  void
 ************************************************************/
 void AntennaHome()
 { 
@@ -210,10 +220,11 @@ void AntennaHome()
 
 /***********************************************************
  * Method: antEncoder
- * returns void
- * 
  * This method is called when the main antenna encoder interrupt is triggered
  * Increases the main antenna encoder value by 1 when encoder is stepped once counter-clockwise and decreases the value by 1 when encoder is stepped once clockwise.
+ * 
+ * Parameter:  none
+ * Returns: void
 ************************************************************/
 void antEncoder()
 {
@@ -227,10 +238,11 @@ void antEncoder()
 
 /***********************************************************
  * Method: refEncoder
- * returns void
- * 
- * This method is called when the reflector antenna encoder interrupt is triggered
+ *  * This method is called when the reflector antenna encoder interrupt is triggered
  * Increases the main antenna encoder value by 1 when encoder is stepped once counter-clockwise and decreases the value by 1 when encoder is stepped once clockwise.
+ * 
+ * Parameter:  none
+ * Returns: void
 ************************************************************/
 void refEncoder()
 {
@@ -244,12 +256,12 @@ void refEncoder()
 
 /***********************************************************
  * Method: StepsCalc
- * param unsigned long freq - the frequency the antenna has to tune to
- * returns steps - the number of steps the motor has to move to attain the required length
- * 
  * Calculates the dipole length based on the frequency inputted.
  * Calculates the dipole length it needs to shorten/elongate into by subtracting the dipole length with the length of the dipole at minimum frequency.
  * Converts the dipole length it needs to shorten/elongate into steps and returns that value
+ * 
+ * Parameter: unsigned long freq - the frequency the antenna has to tune to
+ * returns steps - the number of steps the motor has to move to attain the required length
 ************************************************************/
 long StepsCalc(unsigned long freq)
 {
@@ -260,10 +272,10 @@ long StepsCalc(unsigned long freq)
   dipoleLength = (c/freq)/4;
 
   // Subtract Antenna Length by Minimum Length
-  dipoleLengthToGo = dipoleLength - dipoleLengthMIN; 
+  dipoleLengthToGo = dipoleLength - AntennaLengthMIN; 
   
   // Convert resulting length into # of steps 
-  steps = dipoleLengthToGo/meterToStep;
+  steps = round(dipoleLengthToGo/conversionValue);
   
   // Return Steps
   return steps;
@@ -271,15 +283,15 @@ long StepsCalc(unsigned long freq)
 
 /***********************************************************
  * Method: MotorMove
- * param long ReqStep - the number of steps the motor is required to move
- *       long StepPin - the pin that sends data on how much needs to be stepped on the motor driver
- *       long DirPin  - the pin that controls whether the motor runs clockwise or counter-clockwise on the motor driver
- *       long Encoder - encoder variable of the current motor that will be moved      
- * returns void
- * 
  * Initally creates an instance of an AccelStepper Class that uses the Step and Direction Pin of the motor driver specified.
  * Calculates the amount of steps needed to reach the required steps based on the current step in the encoder variable and move the motor. 
  * Checks if the encoder value is equal to the required steps. If not, calculate missing required steps and move the motor until both values are equal.
+ * 
+ * Parameter: long ReqStep - the number of steps the motor is required to move
+ *            long StepPin - the pin that sends data on how much needs to be stepped on the motor driver
+ *            long DirPin  - the pin that controls whether the motor runs clockwise or counter-clockwise on the motor driver
+ *            long Encoder - encoder variable of the current motor that will be moved      
+ * Returns: void
 ************************************************************/
 void MoveMotor(long ReqStep, long StepPin, int DirPin, long Encoder)
 {
