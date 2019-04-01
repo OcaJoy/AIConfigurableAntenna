@@ -38,7 +38,11 @@ float AntennaLengthMIN = 5.6; // Minimum length of the main antenna in centimete
 float conversionValue = 0.01; // Conversion value used to convert the length needed in centimeters to steps needed
 
 /**********************************************************************************************************************************************************************************               
- * The program sets up by indicating which pins are inputs and outputs, attaching the interrupt function to the encoders, and open up a Serial Connection with the Raspberry Pi.                   
+ * The program sets up by:
+ *  - Indicating which pins are inputs and outputs
+ *  - Attaching the interrupt function to the encoders
+ *  - Opening up a Serial Connection with the Raspberry Pi                
+ *  - Homing the antennas on startup 
 **********************************************************************************************************************************************************************************/
 void setup() {
   // Indicate which pins are inputs and outputs
@@ -78,7 +82,7 @@ void loop() {
   // When there is data from Raspberry Pi
   if(Serial.available())
   {
-    //Instructions for Raspberry Pi
+    //Instructions from Raspberry Pi
     dataInput = Serial.readString(); //Get the full instruction from Raspberry Pi and place it in a string
     modeInput = dataInput.charAt(0); // Extract the mode instruction from the first character of the string
     dataInput.remove(0,1); // Remove the first character or the mode instruction from the string

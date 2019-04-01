@@ -129,8 +129,8 @@ def HumanInput():
 		# Check if the value inputted is an int
         try:
             human_inputMode = int(human_inputModeStringVer)
-            break
-        except ValueError:
+            break #break from loop once input is a valid integer
+        except ValueError: #if input is not an integer
             print("Input number values only") # Indicate to user that a number value must be inputted
     
 	human_lengthInput = 0
@@ -144,8 +144,8 @@ def HumanInput():
             human_lengthInputStringVer = input("Enter Desired Absolute Length: ")
 			try:
 				human_lengthInput = float(human_lengthInputStringVer)
-				break
-			except ValueError:
+				break #break from loop once input is a valid float
+			except ValueError: #if input is not a float
 				print("Input number values only")
         
 		# Send the desired mode and length to Arduino
