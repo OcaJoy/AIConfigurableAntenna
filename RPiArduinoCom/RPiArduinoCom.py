@@ -8,6 +8,9 @@ baudrate = 115200 #Set the communication baudrate (has to be the same as the Ard
 # Create a serial object to communicate with Arduino Serially
 arduino = Serial(port, baudrate) # Create serial object with specified baudrate and port address
 
+# Clear the output buffer to make sure no unintended data will be sent
+arduino.reset_output_buffer()
+
 # Global Variables
 MinMainAntennaLength = 5.6 # Minimum length of a main antenna (single dipole) in centimeter
 MinReflectorAntennaDistance = 4.51 # Minimum distance of the reflector antennas from the main antennas in centimeter
@@ -68,7 +71,7 @@ def LengthToSteps(mode, length, conversionValue):
 	if mode == 5:
 		motorSteps = int(round((length - MinReflectorAntennaDistance)/conversionValue)) # Subtract the desired length by the MinReflectorAntennaDistance and then convert into motor steps
 	# If mode is 3 (Controlling both the main antenna and reflector antenna based on the distance of the desired length of the main antenna) or 4 (Controlling the main antennas only)
-	elif:
+	else:
 		motorSteps = int(round((length - MinMainAntennaLength)/conversionValue)) # Subtract the desired length by the MinMainAntennaLength and then convert into motor steps
     return motorSteps
 
@@ -94,16 +97,16 @@ Returns: none
 def CommunicationCode():
 	reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino  
     if reply == b'00':
-        print("ERROR: Communication Error with Arduino")
+        print("ERROR: Inputted mode is not one of the 5 available modes") #These printed lines are for readability, they can be removed
     elif reply == b'01':
         print("Antenna Ready")
     elif reply == b'02':
         print("Antenna Homed")
     elif reply == b'03':
-        print("ERROR: Mistep in belt system of main antenna")
+        print("ERROR: Misstep in belt system of main antenna")
 		exit() # Exit the program to fix the mistep
     elif reply == b'04':
-        print("ERROR: Mistep in gear system of reflector antennas")
+        print("ERROR: Misstep in gear system of reflector antennas")
 		exit() # Exit the program to fix the mistep
     elif reply == b'05':
         print("ERROR: Frequency not within range")
@@ -135,8 +138,6 @@ def HumanInput():
 	#If the mode is 1, send the data to Arduino and end
     if int(human_inputMode) == 1:
         ControlAntenna(human_inputMode,0)
-		break
-
     else:
         while 1:
 			# Check if value inputted is an input is float
@@ -150,8 +151,8 @@ def HumanInput():
 		# Send the desired mode and length to Arduino
         ControlAntenna(human_inputMode, human_lengthInput)
 
-#Send an instruction to the Arduino telling it to home the antennas
-ControlAntenna(1,0)
+#Wait for the Arduino to finish homing the antennas
+WaitForArduino()
 
 #Exit program if arduino is not able to home properly (code recieved is not "02")
 if arduino.read(2) != b'02':
@@ -159,10 +160,9 @@ if arduino.read(2) != b'02':
 
 # MAIN LOOP
 while 1:
-    
-    #Take input
+    #Send Instruction to the Arduino
     HumanInput() #Remove when human input is no long necessary
-    #ControlAntenna(5, 1000) 
+				 #Use the ControlAntenna function instead
     
     #Wait for reply from arduino
     WaitForArduino()
@@ -170,4 +170,5 @@ while 1:
     #Check Error Log 
     CommunicationCode()
 	
-	arduino.flush()
+	# Clear the output buffer to make sure no unintended data will be sent
+	arduino.reset_output_buffer()

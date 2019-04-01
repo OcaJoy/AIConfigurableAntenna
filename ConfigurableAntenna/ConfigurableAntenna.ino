@@ -64,6 +64,9 @@ void setup() {
   // Set up Serial Connection
   Serial.begin(115200); //Set up the baudrate (has to be the same as what is set on the Raspberry Pi)
   Serial.setTimeout(50);
+
+  // Home the Antennas
+  AntennaHome();
 }
 
 /*********************************************************************************************************************************************************************************
@@ -151,6 +154,9 @@ void loop() {
           Serial.write("01"); // Send 01: Antenna is at targetted length
         } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
+
+      default:
+        Serial.write("00"); // Send 00: Not a valid mode is given
     }
   }
 }

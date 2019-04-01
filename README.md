@@ -1,13 +1,6 @@
 # AIConfigurableAntenna
 The AIConfigurableAtenna is a dipole configruable antenna with 2 reflector antennas. The AIConfigurable Antenna makes use of 2 motors, 1 for extending the main antennas (dipoles) through the use of a belt system, and the other for controlling the distance of the reflector antennas thorugh a gear system. The motors are controlled by an Arduino Mega 2560 REV 3 which is connected to a Raspberry Pi where the AI resides. 
 
-## Antenna Specs:
-- Main Antenna Length: 5.6 - 23 cm
-
-- Reflector Antenna Distance: 4.51 - 24 cm
-
-- Optimized Frequency Range: 320 MHz - 1.6 GHz
-
 ## Getting Started
 
 To run this program, the following software may are needed:
