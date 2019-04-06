@@ -22,7 +22,7 @@ copyright = '2019, Johann Ocampo, Glenndyn Foster, Bridget Tighe, Nathaniel Lalo
 author = 'Johann Ocampo, Glenndyn Foster, Bridget Tighe, Nathaniel Lalonde, Junpeng Sun'
 
 # The full version, including alpha/beta/rc tags
-release = '1'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------

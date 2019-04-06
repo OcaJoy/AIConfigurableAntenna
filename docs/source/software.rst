@@ -1,17 +1,17 @@
 Software
 ========
 
-Getting Started
----------------
+1. Getting Started
+------------------
 | To run this program, the following software are needed:
 
 - `Python <https://www.python.org/downloads/>`_
 
-- `Arduino <https://www.arduino.cc/en/main/software>`_: is only required to edit and upload the program to the Arduino Mega
+- `Arduino <https://www.arduino.cc/en/main/software>`_: required to edit and upload the program to the Arduino Mega
 
 
-Libraries
----------
+2. Libraries
+------------
 - `PySerial <https://pypi.org/project/pyserial/>`_ [Version 3.4]
 
   | This library is used to establish a serial connection between python and arduino to be able to read and write data between the two systems.
@@ -21,29 +21,29 @@ Libraries
   | This library is used to send signals to the Pololu A4988 Stepper Motor Driver to be able to drive the Stepper Motors.
 
 
-Raspberry Pi Code (RPiArduinoCom.py)
-------------------------------------
-Main Program Description
-~~~~~~~~~~~~~~~~~~~~~~~~
-Setup
-^^^^^
+3. Raspberry Pi Code (RPiArduinoCom.py)
+---------------------------------------
+3.1. Main Program Description
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3.1.1. Setup
+^^^^^^^^^^^^
 | The program begins by creating a `Serial` object named `arduino` at port `"/dev/ttyACM0"` with a baudrate of 115200. After opening up the specified serial port, the program waits for the Arduino to finish homing the antennas by waiting for a reply. If the reply received from Arduino not code: 02, the program exits.   
 | *See the* `Communication Codes`_ *section, for more information on what each code mean*
 
-Main Loop
-^^^^^^^^^
+3.1.2. Main Loop
+^^^^^^^^^^^^^^^^
 | The loop begins by either calling the ``ControlAntenna (modeInput, lengthInput)`` or  the ``HumanInput()`` function to send instructions to the Arduino. When using either of the functions, the user is required to input the desired mode and the desired absolute length of the antenna.  
-| *For information on the modes available, see the* :ref:`modesofoperation` *parameter of the* ``ControlAntenna(modeInput, lengthInput)`` *function*
+| *For information on the modes available, see the* :ref:`modesofoperation`.
+|
+| Once the desired input has been sent, the program waits for a reply from Arduino. The Arduino will then send back data to the Raspberry Pi after it has completed its instruction. The program then reads the reply and determines whether the Arduino successfully performed the instruction or if an error occurred. The last task in the loop is to clear the output buffer to make sure no unintended data will be sent to the Arduino. The program then loops back into asking for another instruction and the cycle continues.   
 
-Once the desired input has been sent, the program waits for a reply from Arduino. The Arduino will then send back data to the Raspberry Pi after it has completed its instruction. The program then reads the reply and determines whether the Arduino successfully performed the instruction or if an error occurred. The last task in the loop is to clear the output buffer to make sure no unintended data will be sent to the Arduino. The program then loops back into asking for another instruction and the cycle continues.   
-
-Imports
-~~~~~~~
+3.2. Imports
+~~~~~~~~~~~~
 | Program imports Pyserial to create an object that can serially communicate with the Arduino via USB Cable.  
 | ``from serial import Serial``
 
-Global Variables
-~~~~~~~~~~~~~~~~
+3.3. Global Variables
+~~~~~~~~~~~~~~~~~~~~~
 - ``port = "/dev/ttyACM0"``: Contains the serial port to be communicated with by the `Serial` object
 
 - ``baudrate = 115200`` (int): Contains the value at which baudrate both devices will serially communicate in
@@ -56,10 +56,10 @@ Global Variables
 
 - ``MinReflectorAntennaDistance = 4.51`` (float): Contains the distance of the reflector antenna from the main antenna at its retracted end position in centimeters. This is subtracted from the desired absolute reflector distance to find the distance left needed for the reflector antenna motor to travel. 
 
-Function Definitions
-~~~~~~~~~~~~~~~~~~~~
-``ControlAntenna(modeInput, lengthInput)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3.4. Function Definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+3.4.1 ``ControlAntenna(modeInput, lengthInput)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Takes the desired mode and desired absolute antenna length that is inputted in the parameters and sends them to the Arduino; it converts inputs into a string, combines them, and then sends the combined string to the Arduino. 
@@ -68,6 +68,7 @@ Function Definitions
 
   - ``modeInput`` (int): Input an integer from 1-5 to choose a corresponding mode from :ref:`modesofoperation`
   - ``lengthInput`` (int/float): Input the desired length integer or float depending on the mode listed below
+
     - ``modeInput = 1``: must input a 0
     - ``modeInput = 2``: must input an frequency within 320 MHz to 1.6 GHz (integers only)
     - ``modeInput = 3``: must input the desired absolute length of the main antenna within 5.6 - 23 centimeters
@@ -75,18 +76,18 @@ Function Definitions
     - ``modeInput = 5``: must input the desired absolute distance of the reflector antennas within 4.51 - 24 centimeters
 - **Returns:** None
 
-``HumanInput()``
-^^^^^^^^^^^^^^^^
+3.4.2 ``HumanInput()``
+^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
-  | Takes a human input via keyboard. This function will check if the values inputted for the desired mode and absolute antenna length are in integers or floats and will keep asking the user to enter again until a valid type is inputted. This function then calls for ``ControlAntenna(modeInput, lengthInput)`` inputting the desired mode to `modeInput` and the desired absolute antenna length or frequency to the ``lengthInput``.  
+  | Takes a human input via keyboard. This function will check if the values inputted for the desired mode and absolute antenna length are in integers or floats and will keep asking the user to enter again until a valid type is inputted. This function then calls for ``ControlAntenna(modeInput, lengthInput)`` inputting the desired mode to ``modeInput`` and the desired absolute antenna length or frequency to the ``lengthInput``.  
   | This function can be removed when human input is not required.
 
 - **Parameters:** None
 - **Returns:** None
 
-``LengthToSteps(mode, length, conversionValue)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3.4.3 ``LengthToSteps(mode, length, conversionValue)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:**
 
   | This function subtracts the desired absolute length of the antenna with the minimum length of the antenna (`MinMainAntennaLength`) or the minimum distance of the reflector from the main antenna (`MinReflectorAntennaDistance`) depending on the mode chosen to get the remaining distance. The remaining distance is then converted into the targeted steps the motor needs to take by dividing it with the constant ``LengthToStepsConversion``.  
@@ -96,10 +97,10 @@ Function Definitions
   - ``mode`` (int): Input the desired mode
   - ``lengthInput`` (int / float): Input the desired absolute length of the antenna
   - ``conversionValue`` (float):  Uses the set value of ``LengthToStepsConversion`` to convert the remaining length needed to reach the desired absolute length of the antenna into motor steps
-- **Returns:** `motorSteps`` (int) 
+- **Returns:** ``motorSteps`` (int) 
 
-``WaitForArduino()``
-^^^^^^^^^^^^^^^^^^^^
+3.4.4. ``WaitForArduino()``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | This function will check the serial input buffer and will loop doing nothing as long as it is empty. The loop only stops when a reply is received from the Arduino. 
@@ -107,8 +108,8 @@ Function Definitions
 - **Parameters:** None
 - **Returns:** None
 
-``CommunicationCode()``
-^^^^^^^^^^^^^^^^^^^^^^^
+3.4.5. ``CommunicationCode()``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Gets the reply of the Arduino and depending on the code, the program either continues its loop or the program exits.  
@@ -118,28 +119,28 @@ Function Definitions
 - **Returns:** None
 
 
-Arduino Code (ConfigurableAntenna.ino)
---------------------------------------
-Main Program Description
-~~~~~~~~~~~~~~~~~~~~~~~~
-Setup
-^^^^^
+4. Arduino Code (ConfigurableAntenna.ino)
+-----------------------------------------
+4.1. Main Program Description
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4.1.1. Setup
+^^^^^^^^^^^^
 | Before the main loop of the program begins, the Arduino sets up by determining which of the pins used are inputs and outputs. It then attaches an interrupt to the pins connected to the encoders of the main antennas and reflector antennas. This means that an interrupt will occur when the encoders of the main antennas or the reflector antennas detect a rotation, which will then increment the value that stores how much the motor has rotated in steps. Next, it opens up a serial connection with a baudrate the same as the Raspberry Pi to communicate with it. Lastly, the Arduino homes all the antennas and sends a message to the Raspberry Pi when it is done.
 
-Main Loop
-^^^^^^^^^
+4.1.2. Main Loop
+^^^^^^^^^^^^^^^^
 | The main loop always checks the serial input buffer if there is a message from the Raspberry Pi. If there is a message, the instruction from the Raspberry Pi is extracted and broken down into two different variables; One variable contains the mode the Arduino will perform, and the other variable contains the frequency desired or the desired step the motor needs to rotate to. The program then performs the mode instructed by the Raspberry Pi.
 |
 | For modes 2-5, the Arduino will always check if the inputted frequency or length is within the capability of the Configurable Antenna. If it is within its capability, the Arduino does its task and sends a code of "01" back to the Raspberry Pi that it has completed its task and is ready for another one. If it is not within its capability, it sends an error code to the Raspberry Pi.  
-| *See the* `Communication Codes`_ *section for more information*
+| *See the* `5. Communication Codes`_ *section for more information*
 
-Include
-~~~~~~~
+4.2. Include
+~~~~~~~~~~~~
 | The program includes the AccelStepper Library that gives instructions to the motor driver to move the motor.  
 | ``#include <AccelStepper.h>``
 
-Pins
-~~~~
+4.3. Pins
+~~~~~~~~~
 The value contained is the Arduino Pin Number it is connected to.
  
 - ``const int antA_PHASE = 19;``: Pin of the main antenna encoder that triggers the interrupt 
@@ -157,8 +158,8 @@ The value contained is the Arduino Pin Number it is connected to.
 - ``const int ref1_LimitSwitch = 41;``: Switch that activates when 1st Reflector Antenna is fully retracted
 - ``const int ref2_LimitSwitch = 43;``: Switch that activates when 2nd Reflector Antenna is fully retracted
 
-Global Variables
-~~~~~~~~~~~~~~~~
+4.4. Global Variables
+~~~~~~~~~~~~~~~~~~~~~
 - ``const long freqMIN = 320000000;``: The minimum frequency that the antenna can extend to (320 MHz)
 
 - ``const long freqMAX = 1600000000;``: The maximum frequency that the antenna can shorten to (1.6 GHz)
@@ -179,10 +180,10 @@ Global Variables
 
 - ``long ref_ENC = 0;``: Contains the reflector antenna encoder value (Positive values are how many steps the motor has rotated counter-clockwise)
 
-Function Definitions
-~~~~~~~~~~~~~~~~~~~~
-``EnableMotors(bool state)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.5. Function Definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+4.5.1. ``EnableMotors(bool state)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Enables or disables both the main antenna and reflector antenna motors depending on the inputted `state`. 
@@ -195,8 +196,8 @@ Function Definitions
     - ``state = 1`` - Disables both motors
 - **Returns:** void
 
-``AntennaHome()``
-^^^^^^^^^^^^^^^^^
+4.5.2. ``AntennaHome()``
+^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:**
  
   | Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. This function makes use of the inputs of the 4 microswitches: ``ant1_LimitSwitch``, ``ant2_LimitSwitch``, ``ref1_LimitSwitch``, and ``ref2_LimitSwitch`` to check if all the antennas are homed properly.  
@@ -207,8 +208,8 @@ Function Definitions
 - **Parameters:** None
 - **Returns:** void
 
-``antEncoder()``
-^^^^^^^^^^^^^^^^
+4.5.3. ``antEncoder()``
+^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | This function is called when the main antenna encoder triggers an interrupt when it detects a step in the motor. It increases the `long ant_ENC` encoder value by 1 when the motor is stepped once counter-clockwise and decreases the value by 1 when the motor is stepped once clockwise.
@@ -216,8 +217,8 @@ Function Definitions
 - **Parameters:** None
 - **Returns:** None
 
-``refEncoder()``
-^^^^^^^^^^^^^^^^
+4.5.4. ``refEncoder()``
+^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | This function is called when the reflector antenna encoder triggers an interrupt when it detects a step in the motor. It increases the `long ref_ENC` encoder value by 1 when the motor is stepped once counter-clockwise and decreases the value by 1 when the motor is stepped once clockwise.
@@ -225,8 +226,8 @@ Function Definitions
 - **Parameters:** None
 - **Returns:** void
 
-``StepsCalc(unsigned long freq)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.5.5. ``StepsCalc(unsigned long freq)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Calculates the length the main antennas need to shorten/elongate into based on the frequency inputted by subtracting the main antenna length desired with the main antenna length at minimum frequency.
@@ -236,8 +237,8 @@ Function Definitions
   - ``unsigned long freq``: the frequency the antenna has to shorten/elongate into to tune to
 - **Returns:** void
 
-``MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.5.6. ``MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. The encoder variable is used to check the current position of the antenna to see if it needs to shorten or extend to the required step.   
@@ -252,10 +253,10 @@ Function Definitions
 - **Returns:** void
 
 
-Communication Codes
--------------------
-Codes:
-~~~~~
+5. Communication Codes
+----------------------
+5.1. Codes:
+~~~~~~~~~~~
 The codes that will be sent by the Arduino depending on the success or failure of its performance.
 
 - **00**: ERROR: Mode inputted not valid  
@@ -285,12 +286,12 @@ The codes that will be sent by the Arduino depending on the success or failure o
 
   | This code is sent to notify that the inputted antenna length is not within its range 
 
-How the Arduino sends the codes to the Raspberry Pi:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5.2. How the Arduino sends the codes to the Raspberry Pi:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | The Arduino uses the `Serial.write()` command to send the code in bytes. The Arduino uses a total of 2 bytes for sending the communication code to the Raspberry Pi.
 
-How the Raspberry Pi reads the received codes:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5.3. How the Raspberry Pi reads the received codes:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | The Raspberry Pi uses the `.read(2)` command of Pyserial to read the 2 incoming bytes of the communication code. 
 | If the Raspberry Pi receives a code that is not 00-06, the Raspberry Pi program exits because there is an unforeseen communication error.  
 
