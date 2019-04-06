@@ -16,16 +16,16 @@ Modes of Operation
   | The Main Antennas extend or retract to the desired length inputted. Then, the Reflector Antennas are moved to have their distance match the length of the Main Antennas. 
   | The user is required to input the length of a single main antenna between 5.6 - 23 cm.
 
-- **Modes 4: Move only the Main Antennas to the desired length in centimeters** 
+- **Mode 4: Move only the Main Antennas to the desired length in centimeters** 
  
   | The Main Antennas extend or retract to the desired length inputted. The distance of the Reflector Antennas remains unchanged.
   | The user is required to input the length of a single main antenna between 5.6 - 23 cm.
 
-- **Modes 5: Move only the Main Antennas to the desired length in centimeters**  
+- **Mode 5: Move only the Main Antennas to the desired length in centimeters**  
 
   | The Reflector Antennas extend or retract to the desired distance inputted. The length of the Main Antennas remains unchanged.
   | The user is required to input the distance of the reflector antennas from the main between 4.51 - 24 cm. 
 
 
-
+- **Mode 6:**
 
