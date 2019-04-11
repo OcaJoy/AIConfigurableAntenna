@@ -22,3 +22,9 @@ This is the python program that is uploaded to the Raspberry Pi and will be used
   
 - [AccelStepper](https://www.airspayce.com/mikem/arduino/AccelStepper/) [Version 1.59] 
   - This library is used to send signals to the Pololu A4988 Stepper Motor Driver to be able to drive the Stepper Motors.
+
+## Diagrams and Pictures
+All diagram and pictures can be found in docs/source/img
+
+## STL CAD Files
+All .stl CAD Files can be found in docs/source/slt
