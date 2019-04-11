@@ -1,14 +1,17 @@
 Hardware
 ========
 
-Full Assembly
--------------
-Click below for assembly instructions 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   
-   assembly
+Assembly
+--------
+Completed Assembly
+^^^^^^^^^^^^^^^^^^
+This is what a completed assembly looks like:
+
+.. figure:: pdf/Full_Assembled_Antenna.pdf
+   :align: center
+
+Assembly Steps
+^^^^^^^^^^^^^^
 
 CAD Files
 ---------
