@@ -1,12 +1,17 @@
 Hardware
 ========
 
-Assembly
---------
+Full Assembly
+-------------
+Click below for assembly instructions 
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   
+   assembly
 
-
-Solidworks Models
------------------
+CAD Files
+---------
 
 
 Electrical Components
@@ -29,7 +34,8 @@ Power Supply
 
 Circuit Schematics
 ------------------
-.. figure:: img/AIConfigurableAntennaSchematic.jpg
+
+.. figure:: img/AIConfigurableAntennaSchematic.png
    :align: center
 
 Wiring Diagram
