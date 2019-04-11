@@ -113,7 +113,7 @@ Software
 - **Description:** 
 
   | Gets the reply of the Arduino and depending on the code, the program either continues its loop or the program exits.  
-  | *See the* `Communication Codes`_ *section to see what the the program will perfrom based on the reply.*
+  | *See the* `5. Communication Codes`_ *section to see what the the program will perfrom based on the reply.*
 
 - **Parameters:** None
 - **Returns:** None
@@ -255,8 +255,8 @@ The value contained is the Arduino Pin Number it is connected to.
 
 5. Communication Codes
 ----------------------
-5.1. Codes:
-~~~~~~~~~~~
+5.1. Codes
+~~~~~~~~~~
 The codes that will be sent by the Arduino depending on the success or failure of its performance.
 
 - **00**: ERROR: Mode inputted not valid  
@@ -286,12 +286,12 @@ The codes that will be sent by the Arduino depending on the success or failure o
 
   | This code is sent to notify that the inputted antenna length is not within its range 
 
-5.2. How the Arduino sends the codes to the Raspberry Pi:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5.2. How the Arduino sends the codes to the Raspberry Pi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | The Arduino uses the `Serial.write()` command to send the code in bytes. The Arduino uses a total of 2 bytes for sending the communication code to the Raspberry Pi.
 
-5.3. How the Raspberry Pi reads the received codes:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5.3. How the Raspberry Pi reads the received codes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | The Raspberry Pi uses the `.read(2)` command of Pyserial to read the 2 incoming bytes of the communication code. 
 | If the Raspberry Pi receives a code that is not 00-06, the Raspberry Pi program exits because there is an unforeseen communication error.  
 

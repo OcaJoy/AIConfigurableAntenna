@@ -89,12 +89,14 @@ void loop() {
 
     switch(modeInput)
     {
-      case '1': // Home Antennas
+      // Home Antennas
+      case '1': 
         // Home the antennas
         AntennaHome();
         break;
 
-      case '2': // Move Antennas to inputted frequency
+      // Move Antennas to inputted frequency
+      case '2': 
         // Convert the dataInput string into an long integer
         frequency = dataInput.toInt();
 
@@ -105,14 +107,15 @@ void loop() {
           ref_ReqStep = ant_ReqStep + 109;
 
           // Move Antennas
-          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
-          MoveMotor(ref_ReqStep, ref_StepPin, ref_DirPin, ref_ENC);
+          MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
+          MoveMotor(ref_ReqStep, 2, ref_StepPin, ref_DirPin);
 
           Serial.write("01"); // Send 01: Antenna is at targetted length
         } else {Serial.write("05");} // Send 05: Frequency is not within range
         break;
 
-      case '3': // Move Antennas to inputted length
+      // Move Antennas to inputted length
+      case '3': 
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
         ref_ReqStep = ant_ReqStep + 109;
@@ -123,15 +126,16 @@ void loop() {
         if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
         {
           // Move Antennas
-          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
-          MoveMotor(ref_ReqStep, ref_StepPin, ref_DirPin, ref_ENC);
+          MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
+          MoveMotor(ref_ReqStep, 2, ref_StepPin, ref_DirPin);
 
           Serial.write("01"); // Send 01: Antenna is at targetted length
         } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
         
-
+      // Case 4 & 5 Uses the same instruction as the Raspberry Pi will handle the difference in distancing 
       case '4': // Only move Main Antenna to inputted length
+      case '5': // Only move Main Antenna Holders to inputted length from the center
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
 
@@ -139,13 +143,14 @@ void loop() {
         if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
         {
           //Move Main Antenna
-          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
+          MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
 
           Serial.write("01"); // Send 01: Antenna is at targetted length
         } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
         break;
 
-      case '5':
+      // Only move Reflector Antenna to inputted length
+      case '6':
         //Set the steps needed to reach targetted length
         ref_ReqStep = dataInput.toInt();
 
@@ -153,7 +158,7 @@ void loop() {
         if((ref_ReqStep >= 0) && (ref_ReqStep <= 1949))
         {
           //Move Main Antenna
-          MoveMotor(ant_ReqStep, ant_StepPin, ant_DirPin, ant_ENC);
+          MoveMotor(ref_ReqStep, 2, ref_StepPin, ref_DirPin);
 
           Serial.write("01"); // Send 01: Antenna is at targetted length
         } else {Serial.write("06");} // Send 06: Length inputted is outside antenna capability
@@ -208,6 +213,7 @@ void AntennaHome()
   // Home the Main Antenna
   while(!(digitalRead(ant1_LimitSwitch) || digitalRead(ant2_LimitSwitch)))
   {
+    AntStepper.move(-5);
     AntStepper.runSpeed();
   }
 
@@ -221,6 +227,7 @@ void AntennaHome()
   // Home the Reflector Antenna
   while(!(digitalRead(ref1_LimitSwitch) || (digitalRead(ref2_LimitSwitch))))
   {
+    RefStepper.move(-5);
     RefStepper.runSpeed();
   }
 
@@ -252,10 +259,10 @@ void antEncoder()
 {
   char i;
   i = digitalRead(antB_PHASE);
-  if (i==1) // Turning CCW
-    ant_ENC += 1;
-  else // Turning CW
+  if (i==1) // Turning CW
     ant_ENC -= 1;
+  else // Turning CCW
+    ant_ENC += 1;
 }
 
 /*********************************************************************************************************************************************************************************
@@ -270,9 +277,9 @@ void refEncoder()
 {
   char i;
   i = digitalRead(refB_PHASE);
-  if (i==1) // Turning CCW
+  if (i==1) // Turning CW
     ref_ENC += 1;
-  else // Turning CW
+  else // Turning CCW
     ref_ENC -= 1;
 }
 
@@ -303,24 +310,35 @@ long StepsCalc(unsigned long freq)
 
 /*********************************************************************************************************************************************************************************
  * Method: MotorMove
- * Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. 
+ * Moves the specified motor based on the direction and step pin inputted to the desired steps inputted
  * 
  * Parameter: long ReqStep - the number of steps the motor is required to move
+ *            int Motor - determines which encoder variable to use with the motor (should match which motor will be used)
+ *                      - Motor = 1: use the Main Antenna Encoder   
+ *                      - Motor = 2: use the Reflector Antenna Encoder
  *            int StepPin - the pin of the motor driver that controls the motor
- *            int DirPin  - the pin of the motor driver that controls the direction of the motor
- *            long Encoder - encoder variable of the desired motor to be moved      
+ *            int DirPin - the pin of the motor driver that controls the direction
  * Returns: void
 **********************************************************************************************************************************************************************************/
-void MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)
+void MoveMotor(long ReqStep, int Motor, int StepPin, int DirPin)
 {
   // Create an AccelStepper object that use the inputted Step and Direction Pin of the motor driver specified
   AccelStepper stepper(1, StepPin, DirPin);
 
   // Set the max speed of the motor
   stepper.setMaxSpeed(motorSpeed);
-  
-  // Calculate the amount of steps needed to reach the required steps based on the current steps in the Encoder
-  stepper.move(ReqStep - Encoder);
+
+  // Check if which motor will be used
+  if(Motor == 1) // If the Main Antenna Motor is used 
+  {
+    // Calculate the amount of steps needed to reach the required steps based on the current steps in the Main Antenna Encoder
+    stepper.move(ReqStep - ant_ENC);
+  }
+  else // If the Reflector Antenna Motor is used
+  {
+    // Calculate the amount of steps needed to reach the required steps based on the current steps in the Reflector Antenna Encoder
+    stepper.move(ReqStep - ref_ENC);
+  }
 
   // Set the speed of the motor
   stepper.setSpeed(motorSpeed);
@@ -334,18 +352,36 @@ void MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)
     stepper.runSpeedToPosition(); // Command to step motor at constant speed specified
   }
 
-  // Match Encoder reading to required step
-  while(Encoder != ReqStep)
+  // Check which Motor is used to determine which Encoder should be used for the closed loop correction of the motor chosen
+  if(Motor == 1)
   {
-    stepper.move(ReqStep - Encoder);
-    stepper.setSpeed(800);  // Set at lower speed for precise movements
-
-    while(stepper.distanceToGo() != 0)
+    // Match Main Antenna Encoder reading to required steps
+    while(ant_ENC != ReqStep)
     {
-      stepper.runSpeedToPosition();
+      stepper.move(ReqStep - ant_ENC);
+      stepper.setSpeed(800);  // Set at lower speed for precise movements
+
+      while(stepper.distanceToGo() != 0)
+      {
+        stepper.runSpeedToPosition();
+      }
     }
   }
+  else
+  {
+    // Match Reflector Encoder reading to required step
+      while(ref_ENC != ReqStep)
+    {
+      stepper.move(ReqStep - ref_ENC);
+      stepper.setSpeed(800);  // Set at lower speed for precise movements
 
+      while(stepper.distanceToGo() != 0)
+      {
+      stepper.runSpeedToPosition();
+      }
+    }
+  }
+  
   // Disable Motors:
   EnableMotors(1);
 }
