@@ -73,7 +73,8 @@ Software
     - ``modeInput = 2``: must input an frequency within 320 MHz to 1.6 GHz (integers only)
     - ``modeInput = 3``: must input the desired absolute length of the main antenna within 5.6 - 23 centimeters
     - ``modeInput = 4``: must input the desired absolute length of the main antenna within 5.6 - 23 centimeters
-    - ``modeInput = 5``: must input the desired absolute distance of the reflector antennas within 4.51 - 24 centimeters
+    - ``modeInput = 5``: must input desired dinstace of main antenna holders from center within 6.2 - 23 centimeters
+    - ``modeInput = 6``: must input the desired absolute distance of the reflector antennas within 4.51 - 24 centimeters
 - **Returns:** None
 
 3.4.2 ``HumanInput()``
@@ -237,8 +238,8 @@ The value contained is the Arduino Pin Number it is connected to.
   - ``unsigned long freq``: the frequency the antenna has to shorten/elongate into to tune to
 - **Returns:** void
 
-4.5.6. ``MoveMotor(long ReqStep, int StepPin, int DirPin, long Encoder)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.5.6. ``MoveMotor(long ReqStep, int Motor, int StepPin, int DirPin, long Encoder)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. The encoder variable is used to check the current position of the antenna to see if it needs to shorten or extend to the required step.   
@@ -247,6 +248,10 @@ The value contained is the Arduino Pin Number it is connected to.
 - **Parameters:** 
  
   - ``long ReqStep``: the number of steps the motor is required to move
+  - ``int Motor``: determines which encoder value to use 
+
+    - ``Motor = 1`` - Uses Main Antenna Motor Encoder
+    - ``Motor = 2`` - Uses Reflector Antenna Motor Encoder
   - ``int StepPin``: the pin of the motor driver that controls the motor 
   - ``int DirPin``: the pin of the motor driver that controls the direction of the motor
   - ``long Encoder``: encoder variable of the desired motor to be moved 

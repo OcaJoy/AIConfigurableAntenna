@@ -29,7 +29,8 @@ Power Supply
 
 Circuit Schematics
 ------------------
-
+.. figure:: img/AIConfigurableAntennaSchematic.jpg
+   :align: center
 
 Wiring Diagram
 --------------
