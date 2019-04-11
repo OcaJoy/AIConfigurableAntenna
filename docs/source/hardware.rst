@@ -6,7 +6,8 @@ Hardware
 Completed Assembly
 ^^^^^^^^^^^^^^^^^^
 This is what a completed assembly looks like:
-.. figure:: img/CompletedAssembly.png
+
+.. figure:: img/CompletedAssembly.PNG
    :align: center
 
 Assembly Steps
@@ -19,11 +20,11 @@ Assembly Steps
   | Antenna_Arms_-_Antenna_support_3-1.STL
   | Antenna_Arms_-_Antenna_support_4-1.STL
 
-- Case for dimensioning and represening Raspbery Pi
+- Case of Raspbery Pi
 
   | Raspberry_Pi_case.STL
 
-- Plate used by belt drive on a rail system to extend and retract the antenna
+- The plate used by belt drive on a rail system to extend and retract the antenna
 
   | Creality_X_Carriage_Plate.STL
 
@@ -88,6 +89,10 @@ Assembly Steps
 - Central antenna mount that attaches to the top of the central encoder, aligning the antennas with the holders
 
   | antenna_mount_and_encoder_cap.STL 
+
+- Custom case of PCB to be mounted with the rest of the system
+
+  | circuit_case.STL
 
 3. Electrical Components
 ------------------------
