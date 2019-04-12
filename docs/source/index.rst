@@ -10,6 +10,11 @@ The AI resides in the Raspberry Pi and sends instructions to the Arduino Mega th
 .. figure:: img/AIConfigurableAntenna.jpg
    :align: center
 
+
+GitHub
+------
+`https://github.com/OcaJoy/AIConfigurableAntenna <https://github.com/OcaJoy/AIConfigurableAntenna>`_ 
+
 Start Up
 --------
 1. Connect the power of the circuit board.

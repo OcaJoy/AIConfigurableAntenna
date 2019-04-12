@@ -15,6 +15,9 @@ Assembly Steps
 
 2. CAD Files
 ------------
+Files can be accessed and downloaded `here <https://github.com/OcaJoy/AIConfigurableAntenna/tree/master/docs/source/slt>`_
+
+Descriptions:
 - Antenna mounting arms that hold the antenna end for extending and retracting
 
   | Antenna_Arms_-_Antenna_support_3-1.STL
