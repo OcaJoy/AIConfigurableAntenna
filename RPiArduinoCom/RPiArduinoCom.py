@@ -2,7 +2,7 @@
 from serial import Serial
 
 # Set up Arduio Port Settings
-port = "/dev/ttyACM0" #Set serial port address to connect to
+port = "/dev/ttyACM0" #Set serial port address to ttyACM0
 baudrate = 115200 #Set the communication baudrate (has to be the same as the Arduino)
 
 # Create a serial object to communicate with Arduino Serially
@@ -69,7 +69,7 @@ def LengthToSteps(mode, length):
     
     MinMainAntennaLength = 5.6 # Minimum length of a main antenna (single dipole) in centimeter
     MinReflectorAntennaDistance = 4.51 # Minimum distance of the reflector antennas from the main antennas in centimeter
-    MinMainAntennaHolderDistance = 7.0;
+    MinMainAntennaHolderDistance = 7.0; # Minimum distance of the main antenna holders from the center in centimeter 
     LengthToStepsConversion = 0.01 # Main Antenna Holders moves 0.01 centimeter per motor step 
     
     # If the mode is 5 (Controlling the reflector antennas only)
@@ -102,23 +102,31 @@ Parameter: none
 Returns: none
 """
 def CommunicationCode():
-    reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino  
+    reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino
+	code
     if reply == b'00':
         print("ERROR: Inputted mode is not one of the 6 available modes") #These printed lines are for readability, they can be removed
+		return 0
     elif reply == b'01':
         print("Antenna Ready")
+		return 1
     elif reply == b'02':
         print("Antenna Homed")
+		return 2
     elif reply == b'03':
         print("ERROR: Misstep in belt system of main antenna")
+		return 3
         exit() # Exit the program to fix the mistep
     elif reply == b'04':
         print("ERROR: Misstep in gear system of reflector antennas")
+		return 4
         exit() # Exit the program to fix the mistep
     elif reply == b'05':
         print("ERROR: Frequency not within range")
+		return 5
     elif reply == b'06':
         print("ERROR: Absolute length inputted is not within capability of antennas")
+		return 6
     else:
         #if arduino returns a code with a value other than the above, exit the program
         exit()

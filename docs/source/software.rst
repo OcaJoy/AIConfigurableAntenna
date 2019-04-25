@@ -28,7 +28,7 @@ Software
 3.1.1. Setup
 ^^^^^^^^^^^^
 | The program begins by creating a `Serial` object named `arduino` at port `"/dev/ttyACM0"` with a baudrate of 115200. After opening up the specified serial port, the program waits for the Arduino to finish homing the antennas by waiting for a reply. If the reply received from Arduino not code: 02, the program exits.   
-| *See the* `Communication Codes`_ *section, for more information on what each code mean*
+| *See the* `5. Communication Codes`_ *section, for more information on what each code mean*
 
 3.1.2. Main Loop
 ^^^^^^^^^^^^^^^^
@@ -44,17 +44,19 @@ Software
 
 3.3. Global Variables
 ~~~~~~~~~~~~~~~~~~~~~
-- ``port = "/dev/ttyACM0"``: Contains the serial port to be communicated with by the `Serial` object
+- ``port = "/dev/ttyACM0"``: 
 
-- ``baudrate = 115200`` (int): Contains the value at which baudrate both devices will serially communicate in
+  | Contains the serial port to be communicated with by the `Serial` object
 
-- ``arduino = Serial(port, baudrate)``: The variable containing the object that opens a serial port at the specified port and baudrate
+- ``baudrate = 115200`` (int): 
 
-- ``LengthToStepsConversion = 0.01`` (float): Contains the conversion factor of 0.01 centimeters per 1 step of the motor. The desired absolute length of the antenna inputted is divided by this value to get the number of steps needed by the motor to achieve that length.  
+  | Contains the value at which baudrate both devices will serially communicate in
 
-- ``MinMainAntennaLength = 5.6`` (float): Contains the length of the main antenna at its retracted end position in centimeters. This is subtracted from the desired absolute antenna length to find the distance left needed for the main antenna motor to travel.
+- ``arduino = Serial(port, baudrate)``: 
 
-- ``MinReflectorAntennaDistance = 4.51`` (float): Contains the distance of the reflector antenna from the main antenna at its retracted end position in centimeters. This is subtracted from the desired absolute reflector distance to find the distance left needed for the reflector antenna motor to travel. 
+  | The variable containing the object that opens a serial port at the specified port and baudrate
+  | **It is important that this variable is always named "arduino" as the functions:** 
+  | **``ControlAntenna(modeInput, lengthInput)``, ``HumanInput()``, ``WaitForArduino()``, and ``CommunicationCode()`` all depend on this variable.**
 
 3.4. Function Definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,17 +89,33 @@ Software
 - **Parameters:** None
 - **Returns:** None
 
-3.4.3 ``LengthToSteps(mode, length, conversionValue)``
+3.4.3 ``LengthToSteps(mode, length)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:**
 
   | This function subtracts the desired absolute length of the antenna with the minimum length of the antenna (`MinMainAntennaLength`) or the minimum distance of the reflector from the main antenna (`MinReflectorAntennaDistance`) depending on the mode chosen to get the remaining distance. The remaining distance is then converted into the targeted steps the motor needs to take by dividing it with the constant ``LengthToStepsConversion``.  
+  |
+  | This function makes use of these constants internally:
+    - ``LengthToStepsConversion = 0.01`` (float): 
+   
+      | Contains the conversion factor of 0.01 centimeters per 1 step of the motor. The desired absolute length of the antenna inputted is divided by this value to get the number of steps needed by the motor to achieve that length.
+    
+    - ``MinMainAntennaLength = 5.6`` (float):
+  
+      | Contains the length of the main antenna at its retracted end position in centimeters. When ``mode = 3 or 4``, this is subtracted from the input to find the distance left needed for the main antenna motor to travel.
+
+    - ``MinMainAntennaHolderDistance = 7`` (float):
+
+      | Contains the distance of the main antenna holders from the center at its retracted end position in centimeters. When ``mode = 5``, this is subtracted from the input to find the distance left needed for the main antenna motor to travel.
+
+    - ``MinReflectorAntennaDistance = 4.51`` (float):
+
+      | Contains the distance of the reflector antenna from the main antenna at its retracted end position in centimeters. When ``mode = 6``, this is subtracted from the input to find the distance left needed for the reflector antenna motor to travel.
 
 - **Parameters:**
 
   - ``mode`` (int): Input the desired mode
   - ``lengthInput`` (int / float): Input the desired absolute length of the antenna
-  - ``conversionValue`` (float):  Uses the set value of ``LengthToStepsConversion`` to convert the remaining length needed to reach the desired absolute length of the antenna into motor steps
 - **Returns:** ``motorSteps`` (int) 
 
 3.4.4. ``WaitForArduino()``
@@ -132,7 +150,7 @@ Software
 ^^^^^^^^^^^^^^^^
 | The main loop always checks the serial input buffer if there is a message from the Raspberry Pi. If there is a message, the instruction from the Raspberry Pi is extracted and broken down into two different variables; One variable contains the mode the Arduino will perform, and the other variable contains the frequency desired or the desired step the motor needs to rotate to. The program then performs the mode instructed by the Raspberry Pi.
 |
-| For modes 2-5, the Arduino will always check if the inputted frequency or length is within the capability of the Configurable Antenna. If it is within its capability, the Arduino does its task and sends a code of "01" back to the Raspberry Pi that it has completed its task and is ready for another one. If it is not within its capability, it sends an error code to the Raspberry Pi.  
+| For modes 2-6, the Arduino will always check if the inputted frequency or length is within the capability of the Configurable Antenna. If it is within its capability, the Arduino does its task and sends a code of "01" back to the Raspberry Pi that it has completed its task and is ready for another one. If it is not within its capability, it sends an error code to the Raspberry Pi.  
 | *See the* `5. Communication Codes`_ *section for more information*
 
 4.2. Include
@@ -238,8 +256,8 @@ The value contained is the Arduino Pin Number it is connected to.
   - ``unsigned long freq``: the frequency the antenna has to shorten/elongate into to tune to
 - **Returns:** void
 
-4.5.6. ``MoveMotor(long ReqStep, int Motor, int StepPin, int DirPin, long Encoder)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.5.6. ``MoveMotor(long ReqStep, int Motor, int StepPin, int DirPin)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
   | Moves the specified motor based on the direction and step pin inputted to the desired steps based on the required steps inputted. The encoder variable is used to check the current position of the antenna to see if it needs to shorten or extend to the required step.   
@@ -254,7 +272,6 @@ The value contained is the Arduino Pin Number it is connected to.
     - ``Motor = 2`` - Uses Reflector Antenna Motor Encoder
   - ``int StepPin``: the pin of the motor driver that controls the motor 
   - ``int DirPin``: the pin of the motor driver that controls the direction of the motor
-  - ``long Encoder``: encoder variable of the desired motor to be moved 
 - **Returns:** void
 
 
@@ -293,11 +310,11 @@ The codes that will be sent by the Arduino depending on the success or failure o
 
 5.2. How the Arduino sends the codes to the Raspberry Pi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-| The Arduino uses the `Serial.write()` command to send the code in bytes. The Arduino uses a total of 2 bytes for sending the communication code to the Raspberry Pi.
+| The Arduino uses the ``Serial.write()`` command to send the code in bytes. The Arduino uses a total of 2 bytes for sending the communication code to the Raspberry Pi.
 
 5.3. How the Raspberry Pi reads the received codes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-| The Raspberry Pi uses the `.read(2)` command of Pyserial to read the 2 incoming bytes of the communication code. 
+| The Raspberry Pi uses the ``.read(2)`` command of Pyserial to read the 2 incoming bytes of the communication code. 
 | If the Raspberry Pi receives a code that is not 00-06, the Raspberry Pi program exits because there is an unforeseen communication error.  
 
 
