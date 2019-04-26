@@ -23,11 +23,7 @@ Descriptions:
   | Antenna_Arms_-_Antenna_support_3-1.STL
   | Antenna_Arms_-_Antenna_support_4-1.STL
 
-- Case of Raspbery Pi
-
-  | Raspberry_Pi_case.STL
-
-- The plate used by belt drive on a rail system to extend and retract the antenna
+- The plate used by belt drive on a rail system to extend and retract the antenna. (x4)
 
   | Creality_X_Carriage_Plate.STL
 
@@ -66,11 +62,6 @@ Descriptions:
   | Assembled_antenna_2_-antenna_base7-1.STL
   | Assembled_antenna_2_-antenna_nut-1.STL
 
-- These are current files for the reflector holders (newer models coming soon). Holder 2 is shaped to flow around the encoder that currently blocks its path
-
-  | Reflector_Holder_1.STL
-  | Reflector_Holder_2.STL
-
 - Stand-in model for the rotary encoders that we are using
 
   | rotary_encoder.STL
@@ -78,12 +69,13 @@ Descriptions:
 - Motor mount and reinforcing brace to attach to internals of long and short v-rail legs in the center of entire project
 
   | motor_bracket_brace.STL
-  | motor_bracket.STL
+  | motor_bracket_3.STL
 
 - Similar to Antenna arms, these parts are for holding the 2 opposite pointing electret microphones in order to scan for sounds and sound origins
 
-  | mic_support_1.STL
-  | mic_support_2.STL
+  | mic_support_1.STL [Main Holder] (x1)
+  | mic_support_2.STL [Reflector Holders] (x2)
+  | mic_support_3.STL [Main Holder (lowest sitting rail)] (x1)
 
 - Mount that hold the two encoders 
 
@@ -96,6 +88,45 @@ Descriptions:
 - Custom case of PCB to be mounted with the rest of the system
 
   | circuit_case.STL
+
+- This track is for holding the new reflector system. (x2)
+
+  | V-Rail_track_2.STL
+
+- These legs hold the reflector system in place and will act as motor and microswitch mount. (x4)
+
+  | V-Rail_Reflector_leg.STL
+
+- These mounts are to hold microswitches for the homing function of the reflector supports. (x2)
+
+  | Microswitch_mount_reflector.STL
+
+- These mounts hold microswitches for homing the antenna supports. (x2)
+
+  | Microswitch_mount.STL
+
+- Motor mount that is attached to the reflector legs and holds the motor that drives the reflector
+
+  | new_motor_mount.STL
+
+- This mount is to hold and align the encoder and motor shaft for the reflector system 
+
+  | encoder_mount_3.STL
+
+- This encoder mount for antenna system
+
+  | encoder_mount_4.STL
+
+- Reflector Holders for the Reflector System. (x2)
+
+  | Reflector_support_1.STL
+
+- Brackets allow Raspberry Pi, HackRF, and our custom Circuit Case to be mounted in such a way as to be slid in and out of a mounting position
+
+  | Circuit_case_holder.STL
+  | Pi_holder.STL
+  | hackRF_holder.STL
+
 
 3. Electrical Components
 ------------------------
