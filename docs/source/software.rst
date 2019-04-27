@@ -25,7 +25,7 @@ Software
 ---------------------------------------
 3.0. Install Pyserial
 ~~~~~~~~~~~~~~~~~~~~~
-| To be able to use this program, the Pyserial Library must be pip installed first. Instructions are `here<https://pyserial.readthedocs.io/en/latest/pyserial.html#installation>`_.
+| To be able to use this program, the Pyserial Library must be pip installed first. Instructions are `here <https://pyserial.readthedocs.io/en/latest/pyserial.html#installation>`_.
 
 3.1. Main Program Description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -306,11 +306,11 @@ The codes that will be sent by the Arduino depending on the success or failure o
 
 - **03**: ERROR: Misstep in the belt system of the main antennas  
 
-  | This code is sent when 1 of the 2 switches that checks if the main antennas are homed is not activated to notify that there is a misstep in the belt system of the main antenna. The Raspberry Pi program exits so that the belt system can be readjusted. 
+  | This code is sent when 1 of the 2 switches that checks if the main antennas are homed is not activated to notify that there is a misstep in the belt system of the main antenna. 
 
 - **04**: ERROR: Misstep in the gear system of the reflector antennas.
 
-  | This code is sent when 1 of the 2 switches that check if the reflector antennas are homed is not activated to notify that there is a misstep in the gear system of the reflector antenna. The Raspberry Pi program exits so that the gear system can be readjusted.
+  | This code is sent when 1 of the 2 switches that check if the reflector antennas are homed is not activated to notify that there is a misstep in the gear system of the reflector antenna.
 
 - **05**: ERROR: Frequency inputted is not within the capability of antennas.  
   | This code is sent to notify that the inputted frequency is not within 320 MHz - 1.6 GHz
