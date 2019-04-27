@@ -72,11 +72,11 @@ Software
   - ``lengthInput`` (int/float): Input the desired length integer or float depending on the mode listed below
 
     - ``modeInput = 1``: must input a 0
-    - ``modeInput = 2``: must input an frequency within 320 MHz to 1.6 GHz (integers only)
-    - ``modeInput = 3``: must input the desired absolute length of the main antenna within 5.6 - 23 centimeters
-    - ``modeInput = 4``: must input the desired absolute length of the main antenna within 5.6 - 23 centimeters
-    - ``modeInput = 5``: must input desired dinstace of main antenna holders from center within 6.2 - 23 centimeters
-    - ``modeInput = 6``: must input the desired absolute distance of the reflector antennas within 4.51 - 24 centimeters
+    - ``modeInput = 2``: must input an frequency within 326 MHz to 1.314 GHz (integers only)
+    - ``modeInput = 3``: must input the desired absolute length of the main antenna within 5.7 - 23 centimeters
+    - ``modeInput = 4``: must input the desired absolute length of the main antenna within 5.7 - 23 centimeters
+    - ``modeInput = 5``: must input desired dinstace of main antenna holders from center within 6.7 - 23 centimeters
+    - ``modeInput = 6``: must input the desired absolute distance of the reflector antennas within 6.6 - 18.7 centimeters
 - **Returns:** None
 
 3.4.2 ``HumanInput()``
@@ -100,15 +100,15 @@ Software
    
       | Contains the conversion factor of 0.01 centimeters per 1 step of the motor. The desired absolute length of the antenna inputted is divided by this value to get the number of steps needed by the motor to achieve that length.
     
-    - ``MinMainAntennaLength = 5.6`` (float):
+    - ``MinMainAntennaLength = 5.7`` (float):
   
       | Contains the length of the main antenna at its retracted end position in centimeters. When ``mode = 3 or 4``, this is subtracted from the input to find the distance left needed for the main antenna motor to travel.
 
-    - ``MinMainAntennaHolderDistance = 7`` (float):
+    - ``MinMainAntennaHolderDistance = 6.7`` (float):
 
       | Contains the distance of the main antenna holders from the center at its retracted end position in centimeters. When ``mode = 5``, this is subtracted from the input to find the distance left needed for the main antenna motor to travel.
 
-    - ``MinReflectorAntennaDistance = 4.51`` (float):
+    - ``MinReflectorAntennaDistance = 6.6`` (float):
 
       | Contains the distance of the reflector antenna from the main antenna at its retracted end position in centimeters. When ``mode = 6``, this is subtracted from the input to find the distance left needed for the reflector antenna motor to travel.
 
@@ -162,20 +162,20 @@ Software
 ~~~~~~~~~
 The value contained is the Arduino Pin Number it is connected to.
  
-- ``const int antA_PHASE = 19;``: Pin of the main antenna encoder that triggers the interrupt 
-- ``const int antB_PHASE = 18;``: Pin of the main antenna encoder that determines the direction the encoder is revolving in
-- ``const int refA_PHASE = 3;``: Pin of the reflector antenna encoder that triggers the interrupt
-- ``const int refB_PHASE = 2;``: Pin of the reflector encoder that determines the direction the encoder is revolving in
-- ``const int ant_EnaPin = 25;``: Enable pin of the motor driver of the main antenna motor
-- ``const int ref_EnaPin = 27;``: Enable pin of the motor driver of the reflector antenna motor
-- ``const int ant_StepPin = 29;``: Pin of the motor driver that controls the rotation of the main antenna motor
-- ``const int ant_DirPin = 31;``: Pin of the motor driver that controls the rotation direction of the main antenna motor
-- ``const int ref_StepPin = 33;``: Pin of the motor driver that controls the rotation of the reflector antenna motor
-- ``const int ref_DirPin = 35;``: Pin of the motor driver that controls the rotation direction of the main antenna motor
-- ``const int ant1_LimitSwitch = 37;``: Switch that activates when 1st Main Antenna is fully retracted
-- ``const int ant2_LimitSwitch = 39;``: Switch that activates when 2nd Main Antenna is fully retracted
-- ``const int ref1_LimitSwitch = 41;``: Switch that activates when 1st Reflector Antenna is fully retracted
-- ``const int ref2_LimitSwitch = 43;``: Switch that activates when 2nd Reflector Antenna is fully retracted
+- ``const int antA_PHASE = 3;``: Pin of the main antenna encoder that triggers the interrupt 
+- ``const int antB_PHASE = 30;``: Pin of the main antenna encoder that determines the direction the encoder is revolving in
+- ``const int refA_PHASE = 2;``: Pin of the reflector antenna encoder that triggers the interrupt
+- ``const int refB_PHASE = 31;``: Pin of the reflector encoder that determines the direction the encoder is revolving in
+- ``const int ant_EnaPin = 24;``: Enable pin of the motor driver of the main antenna motor
+- ``const int ref_EnaPin = 25;``: Enable pin of the motor driver of the reflector antenna motor
+- ``const int ant_StepPin = 26;``: Pin of the motor driver that controls the rotation of the main antenna motor
+- ``const int ant_DirPin = 28;``: Pin of the motor driver that controls the rotation direction of the main antenna motor
+- ``const int ref_StepPin = 27;``: Pin of the motor driver that controls the rotation of the reflector antenna motor
+- ``const int ref_DirPin = 29;``: Pin of the motor driver that controls the rotation direction of the main antenna motor
+- ``const int ant1_LimitSwitch = 33;``: Switch that activates when 1st Main Antenna is fully retracted
+- ``const int ant2_LimitSwitch = 35;``: Switch that activates when 2nd Main Antenna is fully retracted
+- ``const int ref1_LimitSwitch = 37;``: Switch that activates when 1st Reflector Antenna is fully retracted
+- ``const int ref2_LimitSwitch = 39;``: Switch that activates when 2nd Reflector Antenna is fully retracted
 
 4.4. Global Variables
 ~~~~~~~~~~~~~~~~~~~~~
@@ -198,6 +198,12 @@ The value contained is the Arduino Pin Number it is connected to.
 - ``long ant_ENC = 0;``: Contains the main antenna encoder value (Positive values are how many steps the motor has rotated counter-clockwise)
 
 - ``long ref_ENC = 0;``: Contains the reflector antenna encoder value (Positive values are how many steps the motor has rotated counter-clockwise)
+
+- ``float c = 299792458;``: Contains the speed of light in meters, used for calculating the required length of a single dipole with a given frequency
+
+- ``float AntennaLengthMIN = 5.7;``: Contains the minimum length of the main antenna in centimeters
+
+- ``float coversionValue = 0.01;``: Conversion value used to convert the length needed in centimeters to steps needed
 
 4.5. Function Definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,12 +255,13 @@ The value contained is the Arduino Pin Number it is connected to.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - **Description:** 
 
-  | Calculates the length the main antennas need to shorten/elongate into based on the frequency inputted by subtracting the main antenna length desired with the main antenna length at minimum frequency.
-
+  | Calculates the length the main antennas need to extend/retract into based on the frequency inputted by subtracting the main antenna length desired with the main antenna length at minimum frequency. The remaining length, which is the length the main antenna needs to extend/retract into, is converted into motor steps.
 - **Parameters:**  
 
   - ``unsigned long freq``: the frequency the antenna has to shorten/elongate into to tune to
-- **Returns:** void
+- **Returns:** 
+
+  - ``long steps``: returns the number of steps the main motor antenna needs to be at to achieve the targetted frequency. 
 
 4.5.6. ``MoveMotor(long ReqStep, int Motor, int StepPin, int DirPin)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

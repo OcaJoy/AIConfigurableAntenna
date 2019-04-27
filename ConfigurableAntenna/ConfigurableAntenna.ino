@@ -1,24 +1,24 @@
 #include <AccelStepper.h>
 
 // Define Constants for Pins
-const int antA_PHASE = 19;
-const int antB_PHASE = 18;
-const int refA_PHASE = 3;
-const int refB_PHASE = 2;
-const int ant_EnaPin = 25; // Enable pin for Main Antenna Motor
-const int ref_EnaPin = 27; // Enable pin for Reflector Antenna Motor
-const int ant_StepPin = 29;
-const int ant_DirPin = 31;
-const int ref_StepPin = 33;
-const int ref_DirPin = 35;
-const int ant1_LimitSwitch = 37; // Switch that activates when 1st Main Antenna is fully retracted
-const int ant2_LimitSwitch = 39; // Switch that activates when 2nd Main Antenna is fully retracted
-const int ref1_LimitSwitch = 41; // Switch that activates when 1st Reflector Antenna is fully retracted
-const int ref2_LimitSwitch = 43; // Switch that activates when 2nd Reflector Antenna is fully retracted
+const int antA_PHASE = 3;
+const int antB_PHASE = 30;
+const int refA_PHASE = 2;
+const int refB_PHASE = 31;
+const int ant_EnaPin = 24; // Enable pin for Main Antenna Motor
+const int ref_EnaPin = 25; // Enable pin for Reflector Antenna Motor
+const int ant_StepPin = 26;
+const int ant_DirPin = 28;
+const int ref_StepPin = 27;
+const int ref_DirPin = 29;
+const int ant1_LimitSwitch = 33; // Switch that activates when 1st Main Antenna is fully retracted
+const int ant2_LimitSwitch = 35; // Switch that activates when 2nd Main Antenna is fully retracted
+const int ref1_LimitSwitch = 37; // Switch that activates when 1st Reflector Antenna is fully retracted
+const int ref2_LimitSwitch = 39; // Switch that activates when 2nd Reflector Antenna is fully retracted
 
 // Define Min & Max Frequency
-const long freqMIN = 320000000; // 320 MHz
-const long freqMAX = 1600000000; // 1.6 GHz
+const long freqMIN = 326000000; // 326 MHz
+const long freqMAX = 1314000000; // 1.314 GHz
 
 // Define Motor Speed
 const int motorSpeed = 1200; // in Steps per Second
@@ -33,8 +33,8 @@ long ant_ENC = 0;  // Holds the Main Antenna Encoder Value      (Positive Values
 long ref_ENC = 0;  // Holds the Reflector Antenna Encoder Value 
 
 // Define variables for Caclulating Distance to step
-float c = 299792458;
-float AntennaLengthMIN = 5.6; // Minimum length of the main antenna in centimeters
+float c = 299792458; // Speed of light in meters
+float AntennaLengthMIN = 5.7; // Minimum length of the main antenna in centimeters
 float conversionValue = 0.01; // Conversion value used to convert the length needed in centimeters to steps needed
 
 /**********************************************************************************************************************************************************************************               
@@ -104,8 +104,21 @@ void loop() {
         {
           // Calculate required steps needed to reach targetted frequency
           ant_ReqStep = StepsCalc(frequency);
-          ref_ReqStep = ant_ReqStep + 109;
 
+          // Check ant_ReqSteps is between 0-90 steps (5.7 - 6.6 centimeters)
+          if((ant_ReqStep >= 0) && (ant_ReqStep <= 90))
+          {
+            ref_ReqStep = 0; // Reflector Antenna Motor will stay at its minimum distance since it cannot go any lower to match the main antenna's distance
+          }
+          else if(ant_ReqStep >= 1210) // If ant_ReqSteps is beyond 1210 steps (18.7 centimeters) 
+          {
+            ref_ReqStep = 1210; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
+          }
+          else // If the ant_ReqSteps is between 90 - 1210 steps (6.6 - 18.7 centimeters)
+          {
+            ref_ReqStep = ant_ReqStep - 90; // Decrease the required steps of the Reflector Antenna Motor by 90 steps due to the 0.9 cm difference in minimum distances of the Reflector Antenna and Main Antenna
+          }
+          
           // Move Antennas
           MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
           MoveMotor(ref_ReqStep, 2, ref_StepPin, ref_DirPin);
@@ -118,12 +131,23 @@ void loop() {
       case '3': 
         // Set the steps needed to reach targetted length
         ant_ReqStep = dataInput.toInt();
-        ref_ReqStep = ant_ReqStep + 109;
-          /* 109 is added because the minimum length of the main antenna and the minimum distance
-           *  of the reflector antennas have a difference of 1.085 cm which is equal to 109 motor steps rounded up 
-           */
+        
+        // Check ant_ReqSteps is between 0-90 steps (5.7 - 6.6 centimeters)
+        if((ant_ReqStep >= 0) && (ant_ReqStep <= 90))
+        {
+          ref_ReqStep = 0; // Reflector Antenna Motor will stay at its minimum distance since it cannot go any lower to match the main antenna's distance
+        }
+        else if(ant_ReqStep >= 1210) // If ant_ReqSteps is beyond 1210 steps (18.7 centimeters) 
+        {
+          ref_ReqStep = 1210; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
+        }
+        else // If the ant_ReqSteps is between 90 - 1210 steps (6.6 - 18.7 centimeters)
+        {
+          ref_ReqStep = ant_ReqStep - 90; // Decrease the required steps of the Reflector Antenna Motor by 90 steps due to the 0.9 cm difference in minimum distances of the Reflector Antenna and Main Antenna
+        }
+        
         // Check if the length input is within the capability of the antenna
-        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
+        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1730))
         {
           // Move Antennas
           MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
@@ -140,7 +164,7 @@ void loop() {
         ant_ReqStep = dataInput.toInt();
 
         // Check if the length input is within the capability of the antenna
-        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1740))
+        if((ant_ReqStep >= 0) && (ant_ReqStep <= 1730))
         {
           //Move Main Antenna
           MoveMotor(ant_ReqStep, 1, ant_StepPin, ant_DirPin);
@@ -155,7 +179,7 @@ void loop() {
         ref_ReqStep = dataInput.toInt();
 
         // Check if the length input is within the capability of the antenna
-        if((ref_ReqStep >= 0) && (ref_ReqStep <= 1949))
+        if((ref_ReqStep >= 0) && (ref_ReqStep <= 1210))
         {
           //Move Main Antenna
           MoveMotor(ref_ReqStep, 2, ref_StepPin, ref_DirPin);
@@ -278,9 +302,9 @@ void refEncoder()
   char i;
   i = digitalRead(refB_PHASE);
   if (i==1) // Turning CW
-    ref_ENC += 1;
-  else // Turning CCW
     ref_ENC -= 1;
+  else // Turning CCW
+    ref_ENC += 1;
 }
 
 /*********************************************************************************************************************************************************************************

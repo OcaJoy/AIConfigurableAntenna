@@ -23,15 +23,15 @@ Parameter:  modeInput (int) - determines the mode the configurable antenna will 
                 2: Moves main and reflector antennas to the desired length specified by the inputted frequency
                 3: Moves main and reflector antennas to the desired length specified by the lengthInput
                 4: Moves only the main antenna to the desired length specified by the lengthInput
-                5: Moves only the main antenna holders to the desired distance specified by the lengthInput
+                5: Moves only the main antenna holders to the desired distance from the center specified by the lengthInput
                 6: Moves only the reflector antenna to the desired distance specified by lengthInput
             legthInput (int/float) - the desired absolute length of the main and/or reflector antenna
                 modeInput = 1: must input a 0
                 modeInput = 2: must input a frequency within 320 MHz - 1.6 GHz (integers only)
-                modeInput = 3: must input the desired length of the main antenna within 5.6 - 23 centimeters
-                modeInput = 4: must input the desired length of The main antenna within 5.6 - 23 centimeters
-                modeInput = 5: must input the desired distance of the main antenna holders within 
-                modeInput = 6: must input the desired absolute distance of the reflector antennas within 4.51 - 24 centimeters         
+                modeInput = 3: must input the desired length of the main antenna within 5.7 - 23 centimeters
+                modeInput = 4: must input the desired length of The main antenna within 5.7 - 23 centimeters
+                modeInput = 5: must input the desired distance of the main antenna holders from the center within 6.7 - 23 centimeters
+                modeInput = 6: must input the desired absolute distance of the reflector antennas within 6.6 - 18.7 centimeters         
 Returns: none
 """
 def ControlAntenna (modeInput, lengthInput=0):    
@@ -67,9 +67,9 @@ Returns: motorSteps (int) - the number of steps the stepper motor needs to take 
 # TODO Subtract the desired length/distance by the MinMainAntennaLength or MinReflectorAntennaDistance depending on the mode
 def LengthToSteps(mode, length):
     
-    MinMainAntennaLength = 5.6 # Minimum length of a main antenna (single dipole) in centimeter
-    MinReflectorAntennaDistance = 4.51 # Minimum distance of the reflector antennas from the main antennas in centimeter
-    MinMainAntennaHolderDistance = 7.0; # Minimum distance of the main antenna holders from the center in centimeter 
+    MinMainAntennaLength = 5.7 # Minimum length of a main antenna (single dipole) in centimeter
+    MinReflectorAntennaDistance = 6.6 # Minimum distance of the reflector antennas from the main antennas in centimeter
+    MinMainAntennaHolderDistance = 6.7 # Minimum distance of the main antenna holders from the center in centimeter 
     LengthToStepsConversion = 0.01 # Main Antenna Holders moves 0.01 centimeter per motor step 
     
     # If the mode is 5 (Controlling the reflector antennas only)
@@ -103,7 +103,6 @@ Returns: none
 """
 def CommunicationCode():
     reply = arduino.read(2) # Read the first 2 bytes of the data sent from Arduino
-	code
     if reply == b'00':
         print("ERROR: Inputted mode is not one of the 6 available modes") #These printed lines are for readability, they can be removed
 		return 0
@@ -128,8 +127,8 @@ def CommunicationCode():
         print("ERROR: Absolute length inputted is not within capability of antennas")
 		return 6
     else:
-        #if arduino returns a code with a value other than the above, exit the program
-        exit()
+        #if arduino returns a code with a value other than the above, there may be a communication error between the two devices
+        exit() # Exit the program and reset both devices
 
 
 """
