@@ -16,7 +16,7 @@ arduino.reset_output_buffer()
 Function: ControlAntenna                     
 Description: takes the desired mode and desired absolute absolute length of the antenna, which will calculated into motor steps, 
              and then combines them into a string to be sent to the Arduino.
-             Modes to Choose (1-5):
+             Modes to Choose (1-6):
             
 Parameter:  modeInput (int) - determines the mode the configurable antenna will perform
                 1: Homes both main and reflector antenna
@@ -31,7 +31,7 @@ Parameter:  modeInput (int) - determines the mode the configurable antenna will 
                 modeInput = 3: must input the desired length of the main antenna within 5.7 - 23 centimeters
                 modeInput = 4: must input the desired length of The main antenna within 5.7 - 23 centimeters
                 modeInput = 5: must input the desired distance of the main antenna holders from the center within 6.7 - 23 centimeters
-                modeInput = 6: must input the desired absolute distance of the reflector antennas within 6.6 - 18.7 centimeters         
+                modeInput = 6: must input the desired absolute distance of the reflector antennas within 6.6 - 18.2 centimeters         
 Returns: none
 """
 def ControlAntenna (modeInput, lengthInput=0):    
@@ -115,11 +115,9 @@ def CommunicationCode():
     elif reply == b'03':
         print("ERROR: Misstep in belt system of main antenna")
 		return 3
-        exit() # Exit the program to fix the mistep
     elif reply == b'04':
         print("ERROR: Misstep in gear system of reflector antennas")
 		return 4
-        exit() # Exit the program to fix the mistep
     elif reply == b'05':
         print("ERROR: Frequency not within range")
 		return 5

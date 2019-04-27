@@ -21,7 +21,7 @@ const long freqMIN = 326000000; // 326 MHz
 const long freqMAX = 1314000000; // 1.314 GHz
 
 // Define Motor Speed
-const int motorSpeed = 1200; // in Steps per Second
+const int motorSpeed = 1000; // in Steps per Second
 
 // Define Global Variables
 unsigned long frequency;  // Frequency Variable
@@ -110,9 +110,9 @@ void loop() {
           {
             ref_ReqStep = 0; // Reflector Antenna Motor will stay at its minimum distance since it cannot go any lower to match the main antenna's distance
           }
-          else if(ant_ReqStep >= 1210) // If ant_ReqSteps is beyond 1210 steps (18.7 centimeters) 
+          else if(ant_ReqStep >= 1160) // If ant_ReqSteps is beyond 1210 steps (18.7 centimeters) 
           {
-            ref_ReqStep = 1210; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
+            ref_ReqStep = 1160; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
           }
           else // If the ant_ReqSteps is between 90 - 1210 steps (6.6 - 18.7 centimeters)
           {
@@ -137,11 +137,11 @@ void loop() {
         {
           ref_ReqStep = 0; // Reflector Antenna Motor will stay at its minimum distance since it cannot go any lower to match the main antenna's distance
         }
-        else if(ant_ReqStep >= 1210) // If ant_ReqSteps is beyond 1210 steps (18.7 centimeters) 
+        else if(ant_ReqStep >= 1160) // If ant_ReqSteps is beyond 1160 steps (18.2 centimeters) 
         {
-          ref_ReqStep = 1210; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
+          ref_ReqStep = 1160; // Reflector Antenna Motor will stay at its maximum distance since it cannot go any further to match the main antenna's distance
         }
-        else // If the ant_ReqSteps is between 90 - 1210 steps (6.6 - 18.7 centimeters)
+        else // If the ant_ReqSteps is between 90 - 1160 steps (6.6 - 18.2 centimeters)
         {
           ref_ReqStep = ant_ReqStep - 90; // Decrease the required steps of the Reflector Antenna Motor by 90 steps due to the 0.9 cm difference in minimum distances of the Reflector Antenna and Main Antenna
         }
@@ -225,49 +225,70 @@ void AntennaHome()
   AccelStepper AntStepper(1, ant_StepPin, ant_DirPin);
   AccelStepper RefStepper(1, ref_StepPin, ref_DirPin);
 
-  // Set speeds for both motors
+  // Set max speeds for both motors
   AntStepper.setMaxSpeed(800);
-  AntStepper.setSpeed(800);
   RefStepper.setMaxSpeed(800);
-  RefStepper.setSpeed(800);
   
   // Enable both motors
   EnableMotors(0);
   
   // Home the Main Antenna
-  while(!(digitalRead(ant1_LimitSwitch) || digitalRead(ant2_LimitSwitch)))
+  while(digitalRead(ant1_LimitSwitch) == LOW  && digitalRead(ant2_LimitSwitch) == LOW) // Motor will continue to retract as long as either switch has not been activated
   {
-    AntStepper.move(-5);
-    AntStepper.runSpeed();
+    AntStepper.move(-180); // Set the motor to move bit by bit, 3 steps clockwise (retracting direction)
+    AntStepper.setSpeed(600); // Set Speed
+
+    // Move the motor
+    while(AntStepper.distanceToGo() != 0)
+    {
+      AntStepper.runSpeedToPosition();
+    } 
   }
 
   // Check that both limit switches of Main Antenna have been activated
-  if(!(digitalRead(ant1_LimitSwitch) && digitalRead(ant2_LimitSwitch)))
+  if(!(digitalRead(ant1_LimitSwitch) == HIGH && digitalRead(ant2_LimitSwitch) == HIGH))
   {
     Serial.write("03"); // Send 03: There is a mistep in the belt system of main antennas
+    // Disable both motors
+    EnableMotors(1);
     return; 
   }
 
+  // Set a small delay for both switch to register
+  delay(200);
+
   // Home the Reflector Antenna
-  while(!(digitalRead(ref1_LimitSwitch) || (digitalRead(ref2_LimitSwitch))))
+  while(digitalRead(ref1_LimitSwitch) == LOW && digitalRead(ref2_LimitSwitch) == LOW) // Motor will continue to retract as long as either switch has not been activated
   {
-    RefStepper.move(-5);
-    RefStepper.runSpeed();
+    RefStepper.move(-120); // Set the motor to move bit by bit, 3 steps clockwise (retracting direction)
+    RefStepper.setSpeed(200); //Set Speed
+
+    // Move the motor
+    while(RefStepper.distanceToGo() != 0)
+    {
+      RefStepper.runSpeedToPosition();
+    } 
   }
 
   // Check that both limit switches of Reflector Antenna have been activated
-  if(!(digitalRead(ref1_LimitSwitch) && (digitalRead(ref2_LimitSwitch))))
+  if(!(digitalRead(ref1_LimitSwitch) == HIGH  && digitalRead(ref2_LimitSwitch) == HIGH))
   {
     Serial.write("04"); // Send 04: There is a mistep in gear system of reflector antennas
+    // Disable both motors
+    EnableMotors(1);
+    return;
   }
+  
+  // Disable both motors
+  EnableMotors(1);
+
+  // Set a small delay to make sure motor is at complete stop
+  delay(200);
   
   // Reset the Encoder Values
   ant_ENC = 0;
   ref_ENC = 0;
-
-  // Disable both motors
-  EnableMotors(1);
-
+  
   Serial.write("02"); // Send 02: All antennas homed properly
 }
 
@@ -320,7 +341,8 @@ long StepsCalc(unsigned long freq)
   long steps;  
 
   // Calculates the length of a single dipole based on the frequency inputted
-  dipoleLength = (c/freq)/4;
+  dipoleLength = ((c/freq)/4)*100;
+            // Multiplied by 100 to convert meter reading into centimeter 
 
   // Subtract Antenna Length by Minimum Length
   dipoleLengthToGo = dipoleLength - AntennaLengthMIN; 

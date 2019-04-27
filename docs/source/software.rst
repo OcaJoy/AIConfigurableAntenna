@@ -23,6 +23,10 @@ Software
 
 3. Raspberry Pi Code (RPiArduinoCom.py)
 ---------------------------------------
+3.0. Install Pyserial
+~~~~~~~~~~~~~~~~~~~~~
+| To be able to use this program, the Pyserial Library must be pip installed first. Instructions are `here<https://pyserial.readthedocs.io/en/latest/pyserial.html#installation>`_.
+
 3.1. Main Program Description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 3.1.1. Setup
@@ -68,7 +72,7 @@ Software
 
 - **Parameters:** 
 
-  - ``modeInput`` (int): Input an integer from 1-5 to choose a corresponding mode from :ref:`modesofoperation`
+  - ``modeInput`` (int): Input an integer from 1-6 to choose a corresponding mode from :ref:`modesofoperation`
   - ``lengthInput`` (int/float): Input the desired length integer or float depending on the mode listed below
 
     - ``modeInput = 1``: must input a 0
@@ -76,7 +80,7 @@ Software
     - ``modeInput = 3``: must input the desired absolute length of the main antenna within 5.7 - 23 centimeters
     - ``modeInput = 4``: must input the desired absolute length of the main antenna within 5.7 - 23 centimeters
     - ``modeInput = 5``: must input desired dinstace of main antenna holders from center within 6.7 - 23 centimeters
-    - ``modeInput = 6``: must input the desired absolute distance of the reflector antennas within 6.6 - 18.7 centimeters
+    - ``modeInput = 6``: must input the desired absolute distance of the reflector antennas within 6.6 - 18.2 centimeters
 - **Returns:** None
 
 3.4.2 ``HumanInput()``
@@ -179,11 +183,11 @@ The value contained is the Arduino Pin Number it is connected to.
 
 4.4. Global Variables
 ~~~~~~~~~~~~~~~~~~~~~
-- ``const long freqMIN = 320000000;``: The minimum frequency that the antenna can extend to (320 MHz)
+- ``const long freqMIN = 326000000;``: The minimum frequency that the antenna can extend to (320 MHz)
 
-- ``const long freqMAX = 1600000000;``: The maximum frequency that the antenna can shorten to (1.6 GHz)
+- ``const long freqMAX = 1314000000;``: The maximum frequency that the antenna can shorten to (1.6 GHz)
 
-- ``const int motorSpeed = 1200;``: The speed of the motor in steps per second (with a 400 stepper motor the speed would be 3 revolutions per second)
+- ``const int motorSpeed = 1000;``: The speed of the motor in steps per second (with a 400 stepper motor the speed would be 3 revolutions per second)
 
 - ``unsigned long frequency;``: Stores the frequency inputted by the user
 

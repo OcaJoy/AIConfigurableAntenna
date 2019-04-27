@@ -5,8 +5,10 @@ Hardware
 -----------
 1.1. Completed Assembly
 ^^^^^^^^^^^^^^^^^^^^^^^
-This is what a completed assembly looks like:
+This is what a completed assembly looks like
 
+.. figure:: img/CompletedAssembly.jpg
+   :align: center
 
 1.2. Assembly Steps
 ^^^^^^^^^^^^^^^^^^^
@@ -33,7 +35,7 @@ Files can be accessed and downloaded `here <https://github.com/OcaJoy/AIConfigur
 
 - Central mount that attaches to the top of the center encoder to hold the main anatennas
 
-  | `antenna_mount_and_encoder_cap.STL <https://github.com/OcaJoy/AIConfigurableAntenna/blob/master/docs/source/slt/Antenna%20Holders/antenna_mount_and_encoder_cap.STL>`_
+  | `antenna_center_tall.STL <https://github.com/OcaJoy/AIConfigurableAntenna/blob/master/docs/source/slt/Antenna%20Holders/antenna_center_tall.STL>`_
 
 2.2.2. Bracket Holders
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -160,7 +162,7 @@ Files can be accessed and downloaded `here <https://github.com/OcaJoy/AIConfigur
 - `Pololu A4988 Motor Driver <https://www.pololu.com/product/1182>`_
 - `Nema 17 Bi-polar 0.9 Degree Stepper Motor <https://www.omc-stepperonline.com/nema-17-bipolar-09deg-11ncm-156ozin-12a-36v-42x42x21mm-4-wires-17hm08-1204s.html>`_ [17HM08-1204S]
 - `Incremental Photoelectric Rotary Encoder 400 P/R <https://www.dfrobot.com/wiki/index.php/Incremental_Photoelectric_Rotary_Encoder_-_400P/R_SKU:_SEN0230>`_ [SEN0230]
-- `SPDT Omron Microswitch <>`_
+- SPDT Omron Microswitch
 
 3.2 Software Defined Radio
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,7 +245,8 @@ Files can be accessed and downloaded `here <https://github.com/OcaJoy/AIConfigur
 4.3. Wiring Diagram
 ^^^^^^^^^^^^^^^^^^^
 
-
+.. figure:: img/WiringConnection.png
+   :align: center
 
 
 

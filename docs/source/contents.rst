@@ -28,6 +28,7 @@ Contents
    
    antennaspec
    modesofoperation
+   antennaequation
    hardware
    software
-   troubleshoot
+   team
