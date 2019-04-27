@@ -1,10 +1,10 @@
 Antenna Specification
 =====================
-- **Main Antenna Length:** 5.6 - 23 cm
+- **Main Antenna Length:** 5.7 - 23 cm
 
-- **Reflector Antenna Distance:** 4.51 - 24 cm
+- **Reflector Antenna Distance:** 6.6 - 18.7 cm
 
-- **Optimized Frequency Range:** 320 MHz - 1.6 GHz
+- **Optimized Frequency Range:** 326 MHz - 1.314 GHz
 
 
 
