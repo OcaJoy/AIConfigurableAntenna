@@ -232,7 +232,7 @@ The value contained is the Arduino Pin Number it is connected to.
   | Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. This function makes use of the inputs of the 4 microswitches: ``ant1_LimitSwitch``, ``ant2_LimitSwitch``, ``ref1_LimitSwitch``, and ``ref2_LimitSwitch`` to check if all the antennas are homed properly.  
   | The homing of the main antenna ends when either one of the main antenna microswitch, ``ant1_LimitSwitch`` or ``ant2_LimitSwitch``, is activated. 
   | The homing of the reflector antenna ends when either one of the reflector antenna microswitch, ``ref1_LimitSwitch`` or ``ref2_LimitSwitch``, is activated. 
-  | If antennas are homed properly, the function sends a code "02" to the Raspberry Pi.
+  | The function sends a code "02" to the Raspberry Pi when the homing is complete
 
 - **Parameters:** None
 - **Returns:** void
