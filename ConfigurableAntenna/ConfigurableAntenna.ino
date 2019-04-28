@@ -213,7 +213,8 @@ void EnableMotors(bool state)
  * method antHome
  * Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. 
  * This function makes use of 4 microswitches (2 for the main antennas and the other 2 for the reflector antennas).
- * If either of 1 of the main antennas microswitches is not activated after homing, then there is a mistep in the belt system of the main antenna. 
+ * The homing of the main antenna completes when either of the 2 main antenna microswitch is activated
+ * The homing of the reflector antenna completes when either of the 2 reflector antenna microswitch is activated
  * The same logic applies to the microswitches of the reflector antennas.
  * 
  * Parameter:  none
@@ -235,7 +236,7 @@ void AntennaHome()
   // Home the Main Antenna
   while(digitalRead(ant1_LimitSwitch) == LOW  && digitalRead(ant2_LimitSwitch) == LOW) // Motor will continue to retract as long as either switch has not been activated
   {
-    AntStepper.move(-180); // Set the motor to move bit by bit, 3 steps clockwise (retracting direction)
+    AntStepper.move(-90); // Set the motor to move in small steps in the retracting direction
     AntStepper.setSpeed(600); // Set Speed
 
     // Move the motor
@@ -245,22 +246,10 @@ void AntennaHome()
     } 
   }
 
-  // Check that both limit switches of Main Antenna have been activated
-  if(!(digitalRead(ant1_LimitSwitch) == HIGH && digitalRead(ant2_LimitSwitch) == HIGH))
-  {
-    Serial.write("03"); // Send 03: There is a mistep in the belt system of main antennas
-    // Disable both motors
-    EnableMotors(1);
-    return; 
-  }
-
-  // Set a small delay for both switch to register
-  delay(200);
-
   // Home the Reflector Antenna
   while(digitalRead(ref1_LimitSwitch) == LOW && digitalRead(ref2_LimitSwitch) == LOW) // Motor will continue to retract as long as either switch has not been activated
   {
-    RefStepper.move(-120); // Set the motor to move bit by bit, 3 steps clockwise (retracting direction)
+    RefStepper.move(-150); // Set the motor to move slowly in the retracting direction
     RefStepper.setSpeed(200); //Set Speed
 
     // Move the motor
@@ -268,15 +257,6 @@ void AntennaHome()
     {
       RefStepper.runSpeedToPosition();
     } 
-  }
-
-  // Check that both limit switches of Reflector Antenna have been activated
-  if(!(digitalRead(ref1_LimitSwitch) == HIGH  && digitalRead(ref2_LimitSwitch) == HIGH))
-  {
-    Serial.write("04"); // Send 04: There is a mistep in gear system of reflector antennas
-    // Disable both motors
-    EnableMotors(1);
-    return;
   }
   
   // Disable both motors

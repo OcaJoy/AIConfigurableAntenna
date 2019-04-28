@@ -230,8 +230,8 @@ The value contained is the Arduino Pin Number it is connected to.
 - **Description:**
  
   | Moves the main antenna and reflector antennas back to their retracted end position at a lower speed. This function makes use of the inputs of the 4 microswitches: ``ant1_LimitSwitch``, ``ant2_LimitSwitch``, ``ref1_LimitSwitch``, and ``ref2_LimitSwitch`` to check if all the antennas are homed properly.  
-  | If either one of the main antenna microswitches is not activated after homing, then there is a mistep in the belt system of the main antenna.   
-  | If either one of the reflector antenna microswitches is not activated after homing, then there is a mistep in the gear system of the reflector antenna.  
+  | The homing of the main antenna ends when either one of the main antenna microswitch, ``ant1_LimitSwitch`` or ``ant2_LimitSwitch``, is activated. 
+  | The homing of the reflector antenna ends when either one of the reflector antenna microswitch, ``ref1_LimitSwitch`` or ``ref2_LimitSwitch``, is activated. 
   | If antennas are homed properly, the function sends a code "02" to the Raspberry Pi.
 
 - **Parameters:** None
@@ -304,16 +304,8 @@ The codes that will be sent by the Arduino depending on the success or failure o
 
   | This code is sent when the Arduino successfully homed all the antennas
 
-- **03**: ERROR: Misstep in the belt system of the main antennas  
-
-  | This code is sent when 1 of the 2 switches that checks if the main antennas are homed is not activated to notify that there is a misstep in the belt system of the main antenna. 
-
-- **04**: ERROR: Misstep in the gear system of the reflector antennas.
-
-  | This code is sent when 1 of the 2 switches that check if the reflector antennas are homed is not activated to notify that there is a misstep in the gear system of the reflector antenna.
-
 - **05**: ERROR: Frequency inputted is not within the capability of antennas.  
-  | This code is sent to notify that the inputted frequency is not within 320 MHz - 1.6 GHz
+  | This code is sent to notify that the inputted frequency is not within 326 MHz - 1.314 GHz
 
 - **06**: ERROR: Desired antenna length inputted is not within the capability of antennas.    
 

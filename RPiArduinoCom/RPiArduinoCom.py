@@ -112,12 +112,6 @@ def CommunicationCode():
     elif reply == b'02':
         print("Antenna Homed")
 		return 2
-    elif reply == b'03':
-        print("ERROR: Misstep in belt system of main antenna")
-		return 3
-    elif reply == b'04':
-        print("ERROR: Misstep in gear system of reflector antennas")
-		return 4
     elif reply == b'05':
         print("ERROR: Frequency not within range")
 		return 5
